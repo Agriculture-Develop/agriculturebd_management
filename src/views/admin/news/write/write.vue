@@ -15,6 +15,22 @@
           </el-select>
         </el-form-item>
 
+        <el-form-item label="发布状态" prop="publishStatus">
+          <el-select v-model="newsForm.publishStatus" placeholder="请选择发布状态">
+            <el-option label="待审核" value="待审核"></el-option>
+            <el-option label="直接发布" value="已发布"></el-option>
+          </el-select>
+          <el-tooltip content="超级管理员可以选择直接发布或提交审核" placement="right">
+            <el-icon class="el-icon--right">
+              <QuestionFilled />
+            </el-icon>
+          </el-tooltip>
+        </el-form-item>
+
+        <el-form-item label="置顶文章">
+          <el-switch v-model="newsForm.isTop" />
+        </el-form-item>
+
         <el-form-item label="封面图片" prop="coverImage">
           <el-upload class="upload-demo" action="" :http-request="uploadImage" :show-file-list="false"
             :before-upload="beforeUpload">
@@ -34,9 +50,23 @@
 
         <el-form-item label="新闻内容" prop="content">
           <div class="editor-container">
-            <!-- 此处可以集成富文本编辑器，如TinyMCE、CKEditor等 -->
-            <el-input v-model="newsForm.content" type="textarea" :rows="12" placeholder="请输入新闻内容"></el-input>
+            <Toolbar style="border-bottom: 1px solid #dcdfe6" :editor="editorRef" :defaultConfig="toolbarConfig"
+              mode="default" />
+            <Editor style="height: 400px; overflow-y: hidden;" v-model="valueHtml" :defaultConfig="editorConfig"
+              mode="default" @onCreated="handleCreated" @onChange="handleChange" />
           </div>
+        </el-form-item>
+
+        <el-form-item label="关键词">
+          <el-tag v-for="(tag, index) in newsForm.keywords" :key="index" closable :disable-transitions="false"
+            @close="handleTagClose(tag)" class="tag-item">
+            {{ tag }}
+          </el-tag>
+          <el-input v-if="inputVisible" ref="tagInputRef" v-model="inputValue" class="tag-input" size="small"
+            @keyup.enter="handleInputConfirm" @blur="handleInputConfirm" />
+          <el-button v-else class="tag-button" :style="{ color: primaryColor }" size="small" @click="showInput">
+            + 添加关键词
+          </el-button>
         </el-form-item>
 
         <el-form-item label="附件">
@@ -52,7 +82,7 @@
 
         <el-form-item>
           <el-button type="primary" :style="{ backgroundColor: primaryColor }"
-            @click="submitForm(newsFormRef, 'publish')">发布</el-button>
+            @click="submitForm(newsFormRef)">提交</el-button>
           <el-button :style="{ backgroundColor: secondaryColor, color: '#fff' }"
             @click="submitForm(newsFormRef, 'draft')">保存草稿</el-button>
           <el-button @click="resetForm(newsFormRef)">重置</el-button>
@@ -70,6 +100,7 @@
           <span>分类：{{ newsForm.category || '未选择分类' }}</span>
           <span>作者：{{ currentUser }}</span>
           <span>时间：{{ currentDate }}</span>
+          <span v-if="newsForm.isTop" class="top-tag">置顶</span>
         </div>
 
         <div v-if="newsForm.coverImage" class="preview-cover">
@@ -83,12 +114,20 @@
         <div class="preview-content">
           <div>{{ newsForm.content || '未输入内容' }}</div>
         </div>
+
+        <div class="preview-keywords" v-if="newsForm.keywords && newsForm.keywords.length > 0">
+          <div class="keywords-title">关键词：</div>
+          <el-tag v-for="(tag, index) in newsForm.keywords" :key="index" size="small" class="keyword-tag"
+            :style="{ backgroundColor: '#e8f4ee', color: '#2e8b57', borderColor: '#2e8b57' }">
+            {{ tag }}
+          </el-tag>
+        </div>
       </div>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="previewDialogVisible = false">关闭</el-button>
           <el-button type="primary" :style="{ backgroundColor: primaryColor }"
-            @click="submitForm(newsFormRef, 'publish')">直接发布</el-button>
+            @click="submitForm(newsFormRef)">提交</el-button>
         </span>
       </template>
     </el-dialog>
@@ -96,9 +135,12 @@
 </template>
 
 <script setup lang="ts">
+import { QuestionFilled } from '@element-plus/icons-vue';
+import { Editor, Toolbar } from '@wangeditor/editor-for-vue';
+import '@wangeditor/editor/dist/css/style.css';
 import type { FormInstance, FormRules, UploadProps, UploadUserFile } from 'element-plus';
 import { ElMessage } from 'element-plus';
-import { computed, reactive, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, reactive, ref, shallowRef } from 'vue';
 
 // 定义农产品相关的主题绿色
 const primaryColor = '#2e8b57'; // 海绿色
@@ -107,19 +149,66 @@ const secondaryColor = '#3cb371'; // 中等海绿色
 const newsFormRef = ref<FormInstance>();
 const previewDialogVisible = ref(false);
 
+// 标签相关
+const inputValue = ref('');
+const inputVisible = ref(false);
+const tagInputRef = ref<HTMLInputElement>();
+
 interface Attachment {
   name: string;
   url: string;
   size?: number;
 }
 
+// 编辑器实例，必须用 shallowRef
+const editorRef = shallowRef();
+
+// 内容 HTML
+const valueHtml = ref('<p>请输入新闻内容</p>');
+
+// 工具栏配置
+const toolbarConfig = {
+  excludeKeys: [
+    'uploadVideo',
+    'insertTable',
+    'codeBlock',
+    'todo'
+  ]
+};
+
+// 编辑器配置
+const editorConfig = {
+  placeholder: '请输入新闻内容...',
+  MENU_CONF: {}
+};
+
+// 组件销毁时，也及时销毁编辑器
+onBeforeUnmount(() => {
+  const editor = editorRef.value;
+  if (editor == null) return;
+  editor.destroy();
+});
+
+// 编辑器回调函数
+const handleCreated = (editor: any) => {
+  editorRef.value = editor;
+};
+
+// 监听内容变化
+const handleChange = (editor: any) => {
+  newsForm.content = editor.getHtml();
+};
+
 // 新闻表单数据
 const newsForm = reactive({
   title: '',
   category: '',
+  publishStatus: '待审核',
+  isTop: false,
   summary: '',
-  content: '',
+  content: '<p>请输入新闻内容</p>',
   coverImage: '',
+  keywords: [] as string[],
   attachments: [] as Attachment[]
 });
 
@@ -154,6 +243,9 @@ const rules = reactive<FormRules>({
   category: [
     { required: true, message: '请选择新闻分类', trigger: 'change' }
   ],
+  publishStatus: [
+    { required: true, message: '请选择发布状态', trigger: 'change' }
+  ],
   summary: [
     { required: true, message: '请输入新闻摘要', trigger: 'blur' },
     { max: 200, message: '摘要不应超过200个字符', trigger: 'blur' }
@@ -165,7 +257,7 @@ const rules = reactive<FormRules>({
 });
 
 // 提交表单
-const submitForm = async (formEl: FormInstance | undefined, type: 'publish' | 'draft') => {
+const submitForm = async (formEl: FormInstance | undefined, type?: 'draft') => {
   if (!formEl) return;
 
   await formEl.validate((valid, fields) => {
@@ -173,8 +265,7 @@ const submitForm = async (formEl: FormInstance | undefined, type: 'publish' | 'd
       // 构建提交的数据
       const submitData = {
         ...newsForm,
-        // 如果是发布，状态为待审核；如果是保存草稿，状态为草稿
-        status: type === 'publish' ? '待审核' : '草稿',
+        status: type === 'draft' ? '草稿' : newsForm.publishStatus,
         createTime: new Date().toISOString()
       };
 
@@ -184,11 +275,14 @@ const submitForm = async (formEl: FormInstance | undefined, type: 'publish' | 'd
       // ...
 
       // 提示成功
-      ElMessage.success(type === 'publish' ? '新闻已提交审核' : '草稿已保存');
-
-      // 重置表单
-      if (type === 'publish') {
-        resetForm(formEl);
+      if (type === 'draft') {
+        ElMessage.success('草稿已保存');
+      } else if (newsForm.publishStatus === '已发布') {
+        ElMessage.success('新闻已直接发布');
+        resetForm(formEl); // 发布后重置表单
+      } else {
+        ElMessage.success('新闻已提交审核');
+        resetForm(formEl); // 提交审核后重置表单
       }
     } else {
       console.log('表单验证失败:', fields);
@@ -201,6 +295,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.resetFields();
   newsForm.coverImage = '';
+  newsForm.keywords = [];
   newsForm.attachments = [];
   fileList.value = [];
 };
@@ -212,6 +307,26 @@ const previewNews = () => {
     return;
   }
   previewDialogVisible.value = true;
+};
+
+// 标签处理
+const handleTagClose = (tag: string) => {
+  newsForm.keywords.splice(newsForm.keywords.indexOf(tag), 1);
+};
+
+const showInput = () => {
+  inputVisible.value = true;
+  nextTick(() => {
+    tagInputRef.value?.focus();
+  });
+};
+
+const handleInputConfirm = () => {
+  if (inputValue.value && !newsForm.keywords.includes(inputValue.value)) {
+    newsForm.keywords.push(inputValue.value);
+  }
+  inputVisible.value = false;
+  inputValue.value = '';
 };
 
 // 上传前校验图片
@@ -280,7 +395,7 @@ const uploadAttachment = (options: any) => {
   .editor-container {
     border: 1px solid #dcdfe6;
     border-radius: 4px;
-    min-height: 300px;
+    overflow: hidden;
   }
 
   .cover-image {
@@ -290,6 +405,22 @@ const uploadAttachment = (options: any) => {
     margin-bottom: 10px;
     border: 1px solid #dcdfe6;
     border-radius: 4px;
+  }
+
+  .tag-item {
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+
+  .tag-button {
+    margin-bottom: 6px;
+  }
+
+  .tag-input {
+    width: 120px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    vertical-align: bottom;
   }
 
   .preview-container {
@@ -311,6 +442,14 @@ const uploadAttachment = (options: any) => {
       margin-bottom: 20px;
       padding-bottom: 15px;
       border-bottom: 1px solid #eee;
+
+      .top-tag {
+        background-color: #f56c6c;
+        color: #fff;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
     }
 
     .preview-cover {
@@ -335,6 +474,23 @@ const uploadAttachment = (options: any) => {
     .preview-content {
       line-height: 1.8;
       color: #333;
+      margin-bottom: 20px;
+    }
+
+    .preview-keywords {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+
+      .keywords-title {
+        margin-right: 10px;
+        color: #666;
+      }
+
+      .keyword-tag {
+        margin-right: 6px;
+      }
     }
   }
 
@@ -346,6 +502,10 @@ const uploadAttachment = (options: any) => {
   :deep(.el-button--primary:hover) {
     background-color: #3cb371; // 中等海绿色
     border-color: #3cb371;
+  }
+
+  :deep(.w-e-text-container) {
+    min-height: 300px;
   }
 }
 </style>
