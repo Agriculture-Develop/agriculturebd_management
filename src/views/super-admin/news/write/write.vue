@@ -50,8 +50,20 @@
 
         <el-form-item label="新闻内容" prop="content">
           <div class="editor-container">
-            <!-- 此处可以集成富文本编辑器，如TinyMCE、CKEditor等 -->
-            <el-input v-model="newsForm.content" type="textarea" :rows="12" placeholder="请输入新闻内容"></el-input>
+            <Toolbar
+              style="border-bottom: 1px solid #dcdfe6"
+              :editor="editorRef"
+              :defaultConfig="toolbarConfig"
+              mode="default"
+            />
+            <Editor
+              style="height: 400px; overflow-y: hidden;"
+              v-model="valueHtml"
+              :defaultConfig="editorConfig"
+              mode="default"
+              @onCreated="handleCreated"
+              @onChange="handleChange"
+            />
           </div>
         </el-form-item>
 
@@ -136,7 +148,9 @@
 import { QuestionFilled } from '@element-plus/icons-vue';
 import type { FormInstance, FormRules, UploadProps, UploadUserFile } from 'element-plus';
 import { ElMessage } from 'element-plus';
-import { computed, nextTick, reactive, ref } from 'vue';
+import { computed, nextTick, reactive, ref, shallowRef, onBeforeUnmount } from 'vue';
+import '@wangeditor/editor/dist/css/style.css';
+import { Editor, Toolbar } from '@wangeditor/editor-for-vue';
 
 // 定义农产品相关的主题绿色
 const primaryColor = '#2e8b57'; // 海绿色
@@ -156,6 +170,45 @@ interface Attachment {
   size?: number;
 }
 
+// 编辑器实例，必须用 shallowRef
+const editorRef = shallowRef();
+
+// 内容 HTML
+const valueHtml = ref('<p>请输入新闻内容</p>');
+
+// 工具栏配置
+const toolbarConfig = {
+  excludeKeys: [
+    'uploadVideo',
+    'insertTable',
+    'codeBlock',
+    'todo'
+  ]
+};
+
+// 编辑器配置
+const editorConfig = {
+  placeholder: '请输入新闻内容...',
+  MENU_CONF: {}
+};
+
+// 组件销毁时，也及时销毁编辑器
+onBeforeUnmount(() => {
+  const editor = editorRef.value;
+  if (editor == null) return;
+  editor.destroy();
+});
+
+// 编辑器回调函数
+const handleCreated = (editor: any) => {
+  editorRef.value = editor;
+};
+
+// 监听内容变化
+const handleChange = (editor: any) => {
+  newsForm.content = editor.getHtml();
+};
+
 // 新闻表单数据
 const newsForm = reactive({
   title: '',
@@ -163,7 +216,7 @@ const newsForm = reactive({
   publishStatus: '待审核',
   isTop: false,
   summary: '',
-  content: '',
+  content: '<p>请输入新闻内容</p>',
   coverImage: '',
   keywords: [] as string[],
   attachments: [] as Attachment[]
@@ -352,7 +405,7 @@ const uploadAttachment = (options: any) => {
   .editor-container {
     border: 1px solid #dcdfe6;
     border-radius: 4px;
-    min-height: 300px;
+    overflow: hidden;
   }
 
   .cover-image {
@@ -459,6 +512,10 @@ const uploadAttachment = (options: any) => {
   :deep(.el-button--primary:hover) {
     background-color: #3cb371; // 中等海绿色
     border-color: #3cb371;
+  }
+
+  :deep(.w-e-text-container) {
+    min-height: 300px;
   }
 }
 </style>
