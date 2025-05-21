@@ -20,12 +20,12 @@
 
     <el-card class="table-card">
       <el-table :data="newsList" style="width: 100%" border>
-        <el-table-column prop="title" label="新闻标题" width="260" />
-        <el-table-column prop="category" label="分类" width="120" />
-        <el-table-column prop="author" label="作者" width="120" />
-        <el-table-column prop="offlineTime" label="下线时间" width="180" />
+        <el-table-column prop="title" label="新闻标题" width="300" />
+        <el-table-column prop="category" label="分类" width="200" />
+        <el-table-column prop="author" label="作者" width="200" />
+        <el-table-column prop="offlineTime" label="下线时间" width="200" />
         <el-table-column prop="offlineReason" label="下线原因" width="200" />
-        <el-table-column label="操作" width="180">
+        <el-table-column label="操作" width="300">
           <template #default="scope">
             <el-button size="small" type="primary" :style="{ backgroundColor: primaryColor }"
               @click="viewNews(scope.row)">

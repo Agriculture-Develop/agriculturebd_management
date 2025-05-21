@@ -21,11 +21,11 @@
     <el-card class="table-card">
       <div class="table-wrapper">
         <el-table :data="newsList" style="width: 100%" border>
-          <el-table-column prop="title" label="新闻标题" width="260" />
-          <el-table-column prop="category" label="分类" width="120" />
-          <el-table-column prop="author" label="作者" width="120" />
-          <el-table-column prop="offlineTime" label="下线时间" width="180" />
-          <el-table-column prop="offlineReason" label="下线原因" width="200" />
+          <el-table-column prop="title" label="新闻标题" width="300" />
+          <el-table-column prop="category" label="分类" width="150" />
+          <el-table-column prop="author" label="作者" width="150" />
+          <el-table-column prop="offlineTime" label="下线时间" width="300" />
+          <el-table-column prop="offlineReason" label="下线原因" width="300" />
           <el-table-column label="操作" width="180">
             <template #default="scope">
               <el-button size="small" :style="{ backgroundColor: secondaryColor, color: '#fff' }"

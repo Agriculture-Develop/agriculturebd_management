@@ -25,7 +25,7 @@ const router = createRouter({
 })
 
 // TODO: 静态页面测试选择角色(1:超级管理员,2:管理员)
-localCache.setCache(User_ROLE, 2)
+localCache.setCache(User_ROLE, 1)
 
 // 导航守卫
 router.beforeEach((to) => {

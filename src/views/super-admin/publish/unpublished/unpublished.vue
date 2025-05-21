@@ -35,11 +35,11 @@
 
       <el-table :data="newsList" style="width: 100%" border @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="title" label="新闻标题" width="260" />
-        <el-table-column prop="category" label="分类" width="120" />
-        <el-table-column prop="author" label="作者" width="120" />
-        <el-table-column prop="createTime" label="创建时间" width="180" />
-        <el-table-column prop="updateTime" label="最近修改时间" width="180" />
+        <el-table-column prop="title" label="新闻标题" width="300" />
+        <el-table-column prop="category" label="分类" width="200" />
+        <el-table-column prop="author" label="作者" width="200" />
+        <el-table-column prop="createTime" label="创建时间" width="200" />
+        <el-table-column prop="updateTime" label="最近修改时间" width="200" />
         <el-table-column label="操作" width="220">
           <template #default="scope">
             <el-button size="small" type="primary" :style="{ backgroundColor: primaryColor }"
