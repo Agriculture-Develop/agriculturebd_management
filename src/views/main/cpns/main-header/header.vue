@@ -15,10 +15,7 @@ const handleMenuIconClick = () => {
 
 }
 
-
 </script>
-
-
 
 <template>
   <div class="main-header">

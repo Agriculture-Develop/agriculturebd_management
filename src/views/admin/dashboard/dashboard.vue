@@ -79,7 +79,7 @@
           </div>
           <div class="data-card-footer">
             <span>较上周 <span class="text-success">+9.2%</span></span>
-            <el-button link type="primary" @click="$router.push('/admin/statistics')">数据分析</el-button>
+            <!-- <el-button link type="primary" @click="$router.push('/admin/statistics')">数据分析</el-button> -->
           </div>
         </el-card>
       </el-col>

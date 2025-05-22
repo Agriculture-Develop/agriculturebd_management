@@ -103,15 +103,7 @@ const defaultActive = computed(() => route.path);
         </el-sub-menu>
       </el-menu>
     </div>
-
-
-
-
-
-
   </div>
-
-
 </template>
 
 
@@ -162,8 +154,5 @@ const defaultActive = computed(() => route.path);
       }
     }
   }
-
-
-
 }
 </style>

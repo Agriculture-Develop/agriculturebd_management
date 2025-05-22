@@ -79,7 +79,7 @@
           </div>
           <div class="data-card-footer">
             <span>同比增长：<span class="text-success">+23.5%</span></span>
-            <el-button link type="primary" @click="$router.push('/super-admin/statistics')">详情</el-button>
+            <!-- <el-button link type="primary" @click="$router.push('/super-admin/statistics')">详情</el-button> -->
           </div>
         </el-card>
       </el-col>
