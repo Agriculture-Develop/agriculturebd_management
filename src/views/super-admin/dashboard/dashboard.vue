@@ -121,7 +121,7 @@
                   </div>
                 </div>
               </div>
-              <div class="chart-container">
+              <div class="chart-container" style="height: 300px">
                 <!-- 模拟折线图 -->
                 <div class="line-chart-placeholder">
                   <svg viewBox="0 0 800 300" class="line-chart-svg">
@@ -447,10 +447,23 @@ const getStatusColor = (type: string) => {
   .chart-card {
     margin-bottom: 20px;
     border-radius: 8px;
+    height: 100%;
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      border-bottom: 1px solid #ebeef5;
+    }
 
     .card-title {
       font-weight: 600;
       font-size: 16px;
+    }
+
+    .chart-container {
+      padding: 20px;
     }
   }
 
@@ -462,6 +475,10 @@ const getStatusColor = (type: string) => {
 
   // 趋势图样式
   .trend-chart {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
     .trend-chart-header {
       display: flex;
       justify-content: space-between;
@@ -469,61 +486,16 @@ const getStatusColor = (type: string) => {
       padding: 0 10px;
     }
 
-    .trend-chart-title {
-      font-size: 15px;
-      font-weight: 500;
-    }
-
-    .trend-data {
-      display: flex;
-    }
-
-    .trend-item {
-      display: flex;
-      align-items: center;
-      margin-left: 20px;
-    }
-
-    .trend-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
-
-    .trend-label {
-      margin-right: 8px;
-      color: #606266;
-      font-size: 14px;
-    }
-
-    .trend-value {
-      font-weight: 600;
-      margin-right: 8px;
-      color: #303133;
-    }
-
-    .trend-change {
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 12px;
-
-      &.positive {
-        color: #67C23A;
-        background-color: rgba(103, 194, 58, 0.1);
-      }
-
-      &.negative {
-        color: #F56C6C;
-        background-color: rgba(245, 108, 108, 0.1);
-      }
+    .chart-container {
+      flex: 1;
+      min-height: 0;
     }
   }
 
   // 折线图占位
   .line-chart-placeholder {
     position: relative;
-    height: 300px;
+    height: 100%;
     width: 100%;
 
     .line-chart-svg {
@@ -532,28 +504,16 @@ const getStatusColor = (type: string) => {
       position: relative;
       z-index: 2;
     }
-
-    .chart-grid {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-size: 50px 50px;
-      background-image:
-        linear-gradient(to right, rgba(200, 200, 200, 0.1) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(200, 200, 200, 0.1) 1px, transparent 1px);
-      z-index: 1;
-    }
   }
 
   // 环形图样式
   .donut-chart-placeholder {
-    height: 200px;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
+    padding: 20px 0;
 
     .donut-chart {
       position: relative;
@@ -628,12 +588,12 @@ const getStatusColor = (type: string) => {
   // 图表图例
   .chart-legend {
     margin-top: 20px;
+    padding: 0 20px;
 
     .legend-item {
       display: flex;
       align-items: center;
       margin-bottom: 10px;
-      padding: 0 20px;
     }
 
     .legend-color {
