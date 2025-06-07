@@ -87,7 +87,7 @@
 
     <!-- 图表区域 -->
     <el-row :gutter="20" style="margin-top: 20px">
-      <el-col :span="16">
+      <el-col :span="12">
         <el-card class="chart-card" shadow="hover">
           <template #header>
             <div class="card-header">
@@ -121,7 +121,7 @@
                   </div>
                 </div>
               </div>
-              <div class="chart-container" style="height: 300px">
+              <div class="chart-container">
                 <!-- 模拟折线图 -->
                 <div class="line-chart-placeholder">
                   <svg viewBox="0 0 800 300" class="line-chart-svg">
@@ -140,7 +140,7 @@
         </el-card>
       </el-col>
 
-      <el-col :span="8">
+      <el-col :span="12">
         <el-card class="chart-card" shadow="hover">
           <template #header>
             <div class="card-header">
@@ -150,40 +150,9 @@
               </el-button>
             </div>
           </template>
-          <div class="chart-container" style="height: 300px">
+          <div class="chart-container">
             <div class="donut-chart-placeholder">
-              <div class="donut-chart">
-                <div class="donut-segment segment1"></div>
-                <div class="donut-segment segment2"></div>
-                <div class="donut-segment segment3"></div>
-                <div class="donut-segment segment4"></div>
-                <div class="donut-hole">
-                  <div class="donut-hole-text">42</div>
-                  <div class="donut-hole-subtext">总篇数</div>
-                </div>
-              </div>
-            </div>
-            <div class="chart-legend">
-              <div class="legend-item">
-                <div class="legend-color" style="background-color: #409EFF"></div>
-                <div class="legend-text">科学技术</div>
-                <div class="legend-value">15篇 (35.7%)</div>
-              </div>
-              <div class="legend-item">
-                <div class="legend-color" style="background-color: #67C23A"></div>
-                <div class="legend-text">市场分析</div>
-                <div class="legend-value">12篇 (28.6%)</div>
-              </div>
-              <div class="legend-item">
-                <div class="legend-color" style="background-color: #E6A23C"></div>
-                <div class="legend-text">种植方法</div>
-                <div class="legend-value">9篇 (21.4%)</div>
-              </div>
-              <div class="legend-item">
-                <div class="legend-color" style="background-color: #F56C6C"></div>
-                <div class="legend-text">政策法规</div>
-                <div class="legend-value">6篇 (14.3%)</div>
-              </div>
+              <div id="pieChart" class="pie-chart"></div>
             </div>
           </div>
         </el-card>
@@ -192,53 +161,55 @@
 
     <!-- 审核任务和快捷操作 -->
     <el-row :gutter="20" style="margin-top: 20px">
-      <el-col :span="16">
-        <el-card shadow="hover">
+      <el-col :span="12">
+        <el-card shadow="hover" class="task-card">
           <template #header>
             <div class="card-header">
               <span class="card-title">待处理审核任务</span>
               <el-tag type="warning" effect="dark">{{ pendingTasks.length }}个待处理</el-tag>
             </div>
           </template>
-          <el-table :data="pendingTasks" style="width: 100%" :show-header="false" size="large">
-            <el-table-column width="50">
-              <template #default="scope">
-                <el-avatar :size="32" :style="{ backgroundColor: getStatusColor(scope.row.type) }">
-                  {{ scope.row.type.substring(0, 1) }}
-                </el-avatar>
-              </template>
-            </el-table-column>
-            <el-table-column>
-              <template #default="scope">
-                <div class="task-item">
-                  <div class="task-title">{{ scope.row.title }}</div>
-                  <div class="task-info">
-                    <span>{{ scope.row.author }}</span>
-                    <span>{{ scope.row.time }}</span>
+          <div class="task-content">
+            <el-table :data="pendingTasks" style="width: 100%" :show-header="false" size="large">
+              <el-table-column width="50">
+                <template #default="scope">
+                  <el-avatar :size="32" :style="{ backgroundColor: getStatusColor(scope.row.type) }">
+                    {{ scope.row.type.substring(0, 1) }}
+                  </el-avatar>
+                </template>
+              </el-table-column>
+              <el-table-column>
+                <template #default="scope">
+                  <div class="task-item">
+                    <div class="task-title">{{ scope.row.title }}</div>
+                    <div class="task-info">
+                      <span>{{ scope.row.author }}</span>
+                      <span>{{ scope.row.time }}</span>
+                    </div>
                   </div>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column align="right" width="120">
-              <template #default="scope">
-                <el-button size="small" :style="{ backgroundColor: primaryColor, color: '#fff' }"
-                  @click="$router.push(`/super-admin/audit/news?id=${scope.row.id}`)">
-                  立即审核
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div class="table-footer" v-if="pendingTasks.length > 0">
-            <el-button type="primary" :style="{ backgroundColor: primaryColor }"
-              @click="$router.push('/super-admin/audit/news')">
-              查看全部审核任务
-            </el-button>
+                </template>
+              </el-table-column>
+              <el-table-column align="right" width="120">
+                <template #default="scope">
+                  <el-button size="small" :style="{ backgroundColor: primaryColor, color: '#fff' }"
+                    @click="$router.push(`/super-admin/audit/news?id=${scope.row.id}`)">
+                    立即审核
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <div class="table-footer" v-if="pendingTasks.length > 0">
+              <el-button type="primary" :style="{ backgroundColor: primaryColor }"
+                @click="$router.push('/super-admin/audit/news')">
+                查看全部审核任务
+              </el-button>
+            </div>
+            <el-empty v-else description="暂无待处理审核任务"></el-empty>
           </div>
-          <el-empty v-else description="暂无待处理审核任务"></el-empty>
         </el-card>
       </el-col>
 
-      <el-col :span="8">
+      <el-col :span="12">
         <el-card shadow="hover" class="quick-action-card">
           <template #header>
             <div class="card-header">
@@ -247,31 +218,29 @@
           </template>
           <div class="quick-actions">
             <div class="quick-action-row">
-              <el-button :style="{ backgroundColor: primaryColor, color: '#fff' }" class="quick-action-btn">
+              <el-button :style="{ backgroundColor: primaryColor, color: '#fff' }" class="quick-action-btn" @click="$router.push('/super-admin/user')">
                 <el-icon>
                   <Plus />
                 </el-icon>
                 <span>创建用户</span>
               </el-button>
-              <el-button :style="{ backgroundColor: secondaryColor, color: '#fff' }" class="quick-action-btn">
+              <el-button :style="{ backgroundColor: secondaryColor, color: '#fff' }" class="quick-action-btn" @click="$router.push('/super-admin/news/write')">
                 <el-icon>
                   <Edit />
                 </el-icon>
                 <span>撰写新闻</span>
               </el-button>
-            </div>
-            <div class="quick-action-row">
-              <el-button type="warning" class="quick-action-btn">
+              <el-button type="warning" class="quick-action-btn" @click="$router.push('/super-admin/audit/news')">
                 <el-icon>
                   <Setting />
                 </el-icon>
-                <span>系统设置</span>
+                <span>审核新闻</span>
               </el-button>
-              <el-button type="info" class="quick-action-btn">
+              <el-button type="info" class="quick-action-btn" @click="$router.push('/super-admin/publish/unpublished')">
                 <el-icon>
                   <DataAnalysis />
                 </el-icon>
-                <span>数据统计</span>
+                <span>发布管理</span>
               </el-button>
             </div>
           </div>
@@ -317,7 +286,8 @@ import {
   User,
   View
 } from '@element-plus/icons-vue';
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import * as echarts from 'echarts';
 
 // 主题色
 const primaryColor = '#2e8b57'; // 主绿色
@@ -325,6 +295,115 @@ const secondaryColor = '#409EFF'; // 蓝色
 
 // 数据周期选择
 const dataPeriod = ref('week');
+
+// 饼图数据
+const pieChartData = [
+  { value: 15, name: '科学技术', percentage: '35.7%' },
+  { value: 12, name: '市场分析', percentage: '28.6%' },
+  { value: 9, name: '种植方法', percentage: '21.4%' },
+  { value: 6, name: '政策法规', percentage: '14.3%' }
+];
+
+// 饼图实例
+let pieChart: echarts.ECharts | null = null;
+
+// 初始化饼图
+const initPieChart = () => {
+  const chartDom = document.getElementById('pieChart');
+  if (!chartDom) return;
+
+  pieChart = echarts.init(chartDom);
+
+  const option = {
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: {c}篇 ({d}%)'
+    },
+    legend: {
+      show: false
+    },
+    series: [
+      {
+        name: '新闻分类',
+        type: 'pie',
+        radius: '75%',
+        center: ['50%', '45%'],
+        avoidLabelOverlap: true,
+        itemStyle: {
+          borderRadius: 4,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: {
+          show: true,
+          position: 'outside',
+          formatter: function(params: any) {
+            return `${params.name}\n${params.value}篇 (${params.percent}%)`;
+          },
+          fontSize: 12,
+          color: '#606266',
+          fontWeight: 500,
+          lineHeight: 18,
+          backgroundColor: '#fff',
+          padding: [4, 8],
+          borderRadius: 4
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: 14,
+            fontWeight: 'bold'
+          },
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
+        data: pieChartData.map(item => ({
+          value: item.value,
+          name: item.name,
+          itemStyle: {
+            color: getSegmentColor(item.name)
+          }
+        }))
+      }
+    ]
+  };
+
+  pieChart.setOption(option);
+};
+
+// 获取扇形颜色
+const getSegmentColor = (name: string) => {
+  switch (name) {
+    case '科学技术':
+      return '#409EFF';
+    case '市场分析':
+      return '#67C23A';
+    case '种植方法':
+      return '#E6A23C';
+    case '政策法规':
+      return '#F56C6C';
+    default:
+      return '#909399';
+  }
+};
+
+// 监听窗口大小变化
+const handleResize = () => {
+  pieChart?.resize();
+};
+
+onMounted(() => {
+  initPieChart();
+  window.addEventListener('resize', handleResize);
+});
+
+onBeforeUnmount(() => {
+  pieChart?.dispose();
+  window.removeEventListener('resize', handleResize);
+});
 
 // 待处理审核任务
 const pendingTasks = ref([
@@ -447,7 +526,7 @@ const getStatusColor = (type: string) => {
   .chart-card {
     margin-bottom: 20px;
     border-radius: 8px;
-    height: 100%;
+    height: 400px; // 固定高度
 
     .card-header {
       display: flex;
@@ -464,6 +543,7 @@ const getStatusColor = (type: string) => {
 
     .chart-container {
       padding: 20px;
+      height: calc(100% - 60px); // 减去header高度
     }
   }
 
@@ -482,13 +562,67 @@ const getStatusColor = (type: string) => {
     .trend-chart-header {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 20px;
-      padding: 0 10px;
+      align-items: center;
+      padding: 0 20px;
+      margin-bottom: 15px;
+    }
+
+    .trend-chart-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #303133;
+    }
+
+    .trend-data {
+      display: flex;
+      gap: 20px;
+    }
+
+    .trend-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .trend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .trend-label {
+      margin-right: 8px;
+      color: #606266;
+      font-size: 14px;
+    }
+
+    .trend-value {
+      font-weight: 600;
+      margin-right: 8px;
+      color: #303133;
+    }
+
+    .trend-change {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+
+      &.positive {
+        color: #67C23A;
+        background-color: rgba(103, 194, 58, 0.1);
+      }
+
+      &.negative {
+        color: #F56C6C;
+        background-color: rgba(245, 108, 108, 0.1);
+      }
     }
 
     .chart-container {
       flex: 1;
       min-height: 0;
+      padding: 0 20px;
+      position: relative;
     }
   }
 
@@ -504,115 +638,34 @@ const getStatusColor = (type: string) => {
       position: relative;
       z-index: 2;
     }
+
+    .chart-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-size: 50px 50px;
+      background-image:
+        linear-gradient(to right, rgba(200, 200, 200, 0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(200, 200, 200, 0.1) 1px, transparent 1px);
+      z-index: 1;
+    }
   }
 
   // 环形图样式
   .donut-chart-placeholder {
-    height: 100%;
+    height: 75%;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    padding: 20px 0;
+    padding: 5px 0;
 
-    .donut-chart {
-      position: relative;
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      background-color: #eee;
-    }
-
-    .donut-segment {
-      position: absolute;
+    .pie-chart {
       width: 100%;
       height: 100%;
-      border-radius: 50%;
-      clip: rect(0px, 180px, 180px, 90px);
-    }
-
-    .segment1 {
-      background-color: #409EFF;
-      clip-path: polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%, 50% 0%);
-      transform: rotate(0deg);
-    }
-
-    .segment2 {
-      background-color: #67C23A;
-      clip-path: polygon(50% 0%, 100% 0%, 100% 50%, 50% 50%, 50% 0%);
-      transform: rotate(130deg);
-    }
-
-    .segment3 {
-      background-color: #E6A23C;
-      clip-path: polygon(50% 0%, 100% 0%, 100% 40%, 50% 40%, 50% 0%);
-      transform: rotate(230deg);
-    }
-
-    .segment4 {
-      background-color: #F56C6C;
-      clip-path: polygon(50% 0%, 100% 0%, 100% 30%, 50% 30%, 50% 0%);
-      transform: rotate(310deg);
-    }
-
-    .donut-hole {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 60%;
-      height: 60%;
-      border-radius: 50%;
-      background-color: white;
-      transform: translate(-50%, -50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .donut-hole-text {
-      font-size: 28px;
-      font-weight: 600;
-      color: #303133;
-      line-height: 1;
-    }
-
-    .donut-hole-subtext {
-      font-size: 12px;
-      color: #909399;
-      margin-top: 4px;
-    }
-  }
-
-  // 图表图例
-  .chart-legend {
-    margin-top: 20px;
-    padding: 0 20px;
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .legend-color {
-      width: 12px;
-      height: 12px;
-      border-radius: 3px;
-      margin-right: 10px;
-    }
-
-    .legend-text {
-      flex: 1;
-      font-size: 14px;
-      color: #606266;
-    }
-
-    .legend-value {
-      font-size: 13px;
-      color: #303133;
-      font-weight: 500;
+      min-height: 200px;
     }
   }
 
@@ -638,37 +691,68 @@ const getStatusColor = (type: string) => {
     }
   }
 
-  .table-footer {
-    margin-top: 15px;
-    text-align: center;
+  // 任务卡片
+  .task-card {
+    height: 400px; // 与图表卡片保持一致的高度
+    border-radius: 8px;
+
+    .task-content {
+      height: calc(100% - 60px); // 减去header高度
+      overflow-y: auto;
+      padding: 20px;
+    }
+  }
+
+  // 表格样式优化
+  .task-content {
+    .el-table {
+      margin-bottom: 15px;
+    }
+
+    .table-footer {
+      text-align: center;
+      padding: 10px 0;
+    }
   }
 
   // 快捷操作区
   .quick-action-card {
-    height: 100%;
-  }
+    height: 400px;
+    border-radius: 8px;
 
-  .quick-actions {
-    margin-bottom: 20px;
+    .quick-actions {
+      height: calc(100% - 60px);
+      padding: 20px;
+    }
 
     .quick-action-row {
       display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+    }
 
-      .quick-action-btn {
-        flex: 1;
-        height: 70px;
-        font-size: 14px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+    .quick-action-btn {
+      flex: 1;
+      height: auto;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 14px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      padding: 8px 16px;
 
-        .el-icon {
-          font-size: 20px;
-          margin-bottom: 6px;
-        }
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .el-icon {
+        font-size: 16px;
+        margin-right: 4px;
       }
     }
   }

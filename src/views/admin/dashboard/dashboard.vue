@@ -128,43 +128,44 @@
       </el-col>
 
       <el-col :xs="24" :lg="8">
-        <el-card class="chart-card" shadow="hover">
-          <template #header>
-            <div class="card-header">
-              <span>内容分类占比</span>
-            </div>
-          </template>
-          <div class="pie-chart-container" style="height: 350px">
-            <!-- 饼图占位 -->
+      <el-card class="chart-card" shadow="hover">
+        <template #header>
+          <div class="card-header">
+            <span>内容分类占比</span>
+          </div>
+        </template>
+        <div class="pie-chart-container" style="height: 350px">
+          <!-- 优化后的饼图 -->
+          <div class="pie-wrapper">
             <div class="pie-placeholder">
-              <div class="pie-slice slice1"></div>
-              <div class="pie-slice slice2"></div>
-              <div class="pie-slice slice3"></div>
-              <div class="pie-slice slice4"></div>
-              <div class="pie-center"></div>
+              <div class="pie-slice slice1">
+                <span class="slice-label">35%</span>
+              </div>
+              <div class="pie-slice slice2">
+                <span class="slice-label">28%</span>
+              </div>
+              <div class="pie-slice slice3">
+                <span class="slice-label">20%</span>
+              </div>
+              <div class="pie-slice slice4">
+                <span class="slice-label">17%</span>
+              </div>
+              <div class="pie-center">
+                <div class="pie-total">100</div>
+                <div class="pie-total-label">总内容</div>
+              </div>
             </div>
-            <div class="pie-legend">
-              <div class="pie-legend-item">
-                <span class="pie-legend-color" style="background-color: #409EFF"></span>
-                <span>科学技术 (35%)</span>
-              </div>
-              <div class="pie-legend-item">
-                <span class="pie-legend-color" style="background-color: #67C23A"></span>
-                <span>市场分析 (28%)</span>
-              </div>
-              <div class="pie-legend-item">
-                <span class="pie-legend-color" style="background-color: #E6A23C"></span>
-                <span>种植方法 (20%)</span>
-              </div>
-              <div class="pie-legend-item">
-                <span class="pie-legend-color" style="background-color: #F56C6C"></span>
-                <span>政策法规 (17%)</span>
-              </div>
+            <div class="category-labels">
+              <div class="category-label" style="top: 10%; left: 75%;">科学技术</div>
+              <div class="category-label" style="top: 45%; left: 90%;">市场分析</div>
+              <div class="category-label" style="top: 80%; left: 70%;">种植方法</div>
+              <div class="category-label" style="top: 45%; left: 5%;">政策法规</div>
             </div>
           </div>
-        </el-card>
-      </el-col>
-    </el-row>
+        </div>
+      </el-card>
+    </el-col>
+  </el-row>
 
     <!-- 系统通知和快捷操作 -->
     <el-row :gutter="20" style="margin-top: 20px">
