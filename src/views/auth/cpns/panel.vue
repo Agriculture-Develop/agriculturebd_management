@@ -1,12 +1,11 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 
-import { ref, watch } from 'vue';
-
-import router from '@/router';
-import { localCache } from '@/utils/cache/cache';
-import { User_REM_PWD, User_ROLE } from '@/utils/cache/keys';
-import panelAccount from './panel-account.vue';
-import panelPhone from './panel-phone.vue';
+import router from '@/router'
+import { localCache } from '@/utils/cache/cache'
+import { User_REM_PWD, User_ROLE } from '@/utils/cache/keys'
+import panelAccount from './panel-account.vue'
+import panelPhone from './panel-phone.vue'
 
 // 激活的面板
 const activeName = ref('account')
@@ -18,36 +17,31 @@ watch(isRemPwd, (newValue) => localCache.setCache(User_REM_PWD, newValue))
 // 获取子组件
 const accountRef = ref<InstanceType<typeof panelAccount>>()
 const phoneRef = ref<InstanceType<typeof panelPhone>>()
-
+//登录
 // 登录逻辑
 const OnLoginBtn = () => {
   console.log(111)
   // // 逻辑调用
-  //  if (activeName.value === 'account') accountRef.value?.LoginByAccount(isRemPwd.value)
-  // else phoneRef.value?.LoginByPhone()
+  if (activeName.value === 'account') accountRef.value?.LoginByAccount(isRemPwd.value)
+  else phoneRef.value?.LoginByPhone()
 
   // 根据权限进行跳转
-  if (localCache.getCache(User_ROLE) === 1) {
-    router.push('/super-admin/dashboard')
-  } else {
-    router.push('/admin/dashboard')
-  }
+  // if (localCache.getCache(User_ROLE) === 1) {
+  //   router.push('/super-admin/dashboard')
+  // } else {
+  //   router.push('/admin/dashboard')
+  // }
 }
-
-
 </script>
-
-
 
 <template>
   <div class="panel">
     <h1 class="title">农产品后台管理系统</h1>
-    <br>
+    <br />
     <div class="tabs">
       <el-tabs type="border-card" stretch v-model="activeName">
         <el-tab-pane e-label="帐号登录" name="account">
           <template #label>
-
             <div class="label">
               <el-icon>
                 <UserFilled />
@@ -55,11 +49,9 @@ const OnLoginBtn = () => {
 
               <span class="text">帐号登录</span>
             </div>
-
           </template>
 
           <panel-account ref="accountRef" />
-
         </el-tab-pane>
 
         <el-tab-pane label="手机登录" name="phone">
@@ -75,22 +67,18 @@ const OnLoginBtn = () => {
 
           <panel-phone ref="phoneRef" />
         </el-tab-pane>
-
       </el-tabs>
-
     </div>
     <div class="controls">
       <el-checkbox label="记住密码" v-model="isRemPwd" />
       <el-link type="primary">忘记密码</el-link>
     </div>
 
-    <el-button class="login-btn" type="primary" size="large" @click="OnLoginBtn">立即登录</el-button>
-
-
+    <el-button class="login-btn" type="primary" size="large" @click="OnLoginBtn"
+      >立即登录</el-button
+    >
   </div>
 </template>
-
-
 
 <style lang="less" scoped>
 .panel {
@@ -120,6 +108,5 @@ const OnLoginBtn = () => {
     margin-top: 30px;
     width: 100%;
   }
-
 }
 </style>

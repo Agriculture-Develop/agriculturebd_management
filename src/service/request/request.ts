@@ -24,11 +24,9 @@ interface NetRequestConfig<T = AxiosResponse> extends AxiosRequestConfig {
 
 class NetRequest {
   instance: AxiosInstance
-
   // request 实例
   constructor(config: NetRequestConfig) {
     this.instance = axios.create(config)
-
     //全局请求拦截器
     this.instance.interceptors.request.use((config) => {        // 成功拦截
       return config

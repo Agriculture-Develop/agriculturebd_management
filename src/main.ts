@@ -3,10 +3,11 @@ import { createApp } from 'vue'
 
 import elIcon from '@/global/el-icons'
 import 'normalize.css'
+import 'element-plus/dist/index.css'
 import App from './App.vue'
 import './assets/css/index.less'
 import router from './router'
-
+import './api'
 const app = createApp(App)
 
 app.use(createPinia())

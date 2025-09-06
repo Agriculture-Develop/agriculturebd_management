@@ -11,15 +11,21 @@ class Cache {
   }
 
   setCache(key: string, value: any) {
-    if (value) {
+    if (typeof value === 'string') {
+      this.storage.setItem(key, value)
+    } else {
       this.storage.setItem(key, JSON.stringify(value))
     }
   }
-
-  getCache(key: string) {
+  getCache<T = any>(key: string): T | null {
     const value = this.storage.getItem(key)
-    if (value) {
+    if (!value) return null
+
+    try {
       return JSON.parse(value)
+    } catch {
+      // 如果不是 JSON 格式，直接返回原值（说明存的是 string）
+      return value as unknown as T
     }
   }
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Expand, Fold } from '@element-plus/icons-vue';
-import { ref } from 'vue';
+import { Expand, Fold } from '@element-plus/icons-vue'
+import { ref } from 'vue'
 
-import info from './info.vue';
+import info from './info.vue'
 
 const emit = defineEmits(['foldChange'])
 const isFold = ref(false)
@@ -12,23 +12,19 @@ const handleMenuIconClick = () => {
 
   // 发送折叠事件
   emit('foldChange', isFold.value)
-
 }
-
 </script>
 
 <template>
   <div class="main-header">
-    <di class="menu-icon" @click="handleMenuIconClick">
+    <div class="menu-icon" @click="handleMenuIconClick">
       <el-icon>
         <component :is="isFold ? Expand : Fold" size="28px" />
       </el-icon>
-
-    </di>
+    </div>
 
     <div class="content">
       <div class="breadcrumbs">
-
         <!-- <el-breadcrumb separator-icon="ArrowRight">
           <template v-for="item in crumbs">
             <el-breadcrumb-item :to="{ path: item.path }">{{ item.name }}</el-breadcrumb-item>
@@ -37,13 +33,9 @@ const handleMenuIconClick = () => {
       </div>
 
       <info />
-
     </div>
-
   </div>
 </template>
-
-
 
 <style lang="less" scoped>
 .main-header {
@@ -64,6 +56,5 @@ const handleMenuIconClick = () => {
     align-items: center;
     flex: 1;
   }
-
 }
 </style>

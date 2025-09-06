@@ -1,42 +1,38 @@
 <script setup lang="ts">
-import router from '@/router';
-import { localCache } from '@/utils/cache/cache';
-import { Account_TOKEN, User_DATA, User_ROLE } from '@/utils/cache/keys';
-import { ref } from 'vue';
+import router from '@/router'
+import { localCache } from '@/utils/cache/cache'
+import { Account_TOKEN, User_DATA, User_ROLE } from '@/utils/cache/keys'
+import { ref } from 'vue'
 
 const handleExitClick = () => {
+  localStorage.removeItem('token')
   localCache.removeCache(Account_TOKEN)
   localCache.removeCache(User_ROLE)
   localCache.removeCache(User_DATA)
   router.push('/login')
-
 }
-
-
 
 const userInfo = ref(localCache.getCache(User_DATA) ?? {})
 
 // TODO: 测试写死
 userInfo.value.name = '张三'
-
 </script>
-
-
 
 <template>
   <div class="header-info">
-
     <div class="welcome">
       <span>欢迎回来，</span>
       <span class="name">{{ userInfo.name }}</span>
     </div>
 
     <div class="info">
-
       <el-dropdown>
         <span class="user-info">
           <div>
-            <el-avatar :size="28" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+            <el-avatar
+              :size="28"
+              src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+            />
           </div>
           <el-icon>
             <arrow-down />
@@ -68,22 +64,14 @@ userInfo.value.name = '张三'
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-
     </div>
-
-
-
   </div>
-
 </template>
-
-
 
 <style lang="less" scoped>
 .header-info {
   display: flex;
   align-items: center;
-
 
   .operation {
     display: flex;
@@ -123,11 +111,9 @@ userInfo.value.name = '张三'
       }
     }
 
-
     .el-tooltip__trigger:focus-visible {
       outline: unset;
     }
-
   }
 
   .info {

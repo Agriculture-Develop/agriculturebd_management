@@ -16,6 +16,12 @@ export const superAdminRoutes = [
         name: 'super-admin-user',
         component: () => import('@/views/super-admin/user/user.vue'),
       },
+      //帖子管理路由
+      {
+        path: 'post',
+        name: 'super-admin-post',
+        component: () => import('@/views/super-admin/post/post.vue'),
+      },
       // 新闻管理路由
       {
         path: 'news',
