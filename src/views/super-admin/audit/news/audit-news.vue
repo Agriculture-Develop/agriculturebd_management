@@ -66,7 +66,7 @@ const router = useRouter()
 
 // 定义农产品相关的主题绿色
 const primaryColor = '#2e8b57'; // 海绿色
-const secondaryColor = '#3cb371'; // 中等海绿色
+// const secondaryColor = '#3cb371'; // 中等海绿色
 
 // 当前审核的新闻详情
 const newsDetail = ref({
