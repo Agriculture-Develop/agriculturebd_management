@@ -14,12 +14,12 @@
  *
  * **Do not edit the file manually.**
  */
-import type { Alova, AlovaMethodCreateConfig, AlovaGenerics, Method } from 'alova';
-import type { $$userConfigMap, alovaInstance } from '.';
-import type apiDefinitions from './apiDefinitions';
+import type { Alova, AlovaMethodCreateConfig, AlovaGenerics, Method } from 'alova'
+import type { $$userConfigMap, alovaInstance } from '.'
+import type apiDefinitions from './apiDefinitions'
 
-type CollapsedAlova = typeof alovaInstance;
-type UserMethodConfigMap = typeof $$userConfigMap;
+type CollapsedAlova = typeof alovaInstance
+type UserMethodConfigMap = typeof $$userConfigMap
 
 type Alova2MethodConfig<Responded> =
   CollapsedAlova extends Alova<
@@ -36,27 +36,36 @@ type Alova2MethodConfig<Responded> =
   >
     ? Omit<
         AlovaMethodCreateConfig<
-          AlovaGenerics<Responded, any, RequestConfig, Response, ResponseHeader, L1Cache, L2Cache, SE>,
+          AlovaGenerics<
+            Responded,
+            any,
+            RequestConfig,
+            Response,
+            ResponseHeader,
+            L1Cache,
+            L2Cache,
+            SE
+          >,
           any,
           Responded
         >,
         'params'
       >
-    : never;
+    : never
 
 // Extract the return type of transform function that define in $$userConfigMap, if it not exists, use the default type.
 type ExtractUserDefinedTransformed<
   DefinitionKey extends keyof typeof apiDefinitions,
-  Default
+  Default,
 > = DefinitionKey extends keyof UserMethodConfigMap
   ? UserMethodConfigMap[DefinitionKey]['transform'] extends (...args: any[]) => any
     ? Awaited<ReturnType<UserMethodConfigMap[DefinitionKey]['transform']>>
     : Default
-  : Default;
+  : Default
 type Alova2Method<
   Responded,
   DefinitionKey extends keyof typeof apiDefinitions,
-  CurrentConfig extends Alova2MethodConfig<any>
+  CurrentConfig extends Alova2MethodConfig<any>,
 > =
   CollapsedAlova extends Alova<
     AlovaGenerics<
@@ -86,16 +95,16 @@ type Alova2Method<
           SE
         >
       >
-    : never;
+    : never
 
 export interface Login {
-  code: number;
-  msg: string;
+  code: number
+  msg: string
   data: {
-    id: number;
-    token: string;
-    role: string;
-  };
+    id: number
+    token: string
+    role: string
+  }
 }
 declare global {
   interface Apis {
@@ -133,43 +142,43 @@ declare global {
        */
       get_admin_user_list<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            total: number;
+            total: number
             list: Array<{
-              id: number;
-              phone: string;
-              nickname: string;
-              avatar_path: string;
-              role: string;
-              status: string;
-              created_at: string;
-            }>;
-          };
-        }>
+              id: number
+              phone: string
+              nickname: string
+              avatar_path: string
+              role: string
+              status: string
+              created_at: string
+            }>
+          }
+        }>,
       >(
-        config?: Config
+        config?: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            total: number;
+            total: number
             list: Array<{
-              id: number;
-              phone: string;
-              nickname: string;
-              avatar_path: string;
-              role: string;
-              status: string;
-              created_at: string;
-            }>;
-          };
+              id: number
+              phone: string
+              nickname: string
+              avatar_path: string
+              role: string
+              status: string
+              created_at: string
+            }>
+          }
         },
         'user.get_admin_user_list',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -209,28 +218,28 @@ declare global {
        */
       put_admin_user_id<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           pathParams: {
-            id: string;
-          };
+            id: string
+          }
           data: {
-            nickname: string;
-            role: number;
-            status: number;
-          };
-        }
+            nickname: string
+            role: number
+            status: number
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'user.put_admin_user_id',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -259,23 +268,23 @@ declare global {
        */
       delete_admin_user_id<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           pathParams: {
-            id: string;
-          };
-        }
+            id: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'user.delete_admin_user_id',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -307,28 +316,28 @@ declare global {
        */
       put_public_user<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           data: {
-            nickname: string;
+            nickname: string
             /**
              * 无法修改为管理员以上权限
              */
-            role: string;
-            avatar: string;
-          };
-        }
+            role: string
+            avatar: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'user.put_public_user',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -357,37 +366,37 @@ declare global {
        */
       get_public_user<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            id: number;
-            phone: string;
-            nickname: string;
-            avatar_path: string;
-            role: string;
-            status: string;
-            created_at: string;
-          };
-        }>
+            id: number
+            phone: string
+            nickname: string
+            avatar_path: string
+            role: string
+            status: string
+            created_at: string
+          }
+        }>,
       >(
-        config?: Config
+        config?: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            id: number;
-            phone: string;
-            nickname: string;
-            avatar_path: string;
-            role: string;
-            status: string;
-            created_at: string;
-          };
+            id: number
+            phone: string
+            nickname: string
+            avatar_path: string
+            role: string
+            status: string
+            created_at: string
+          }
         },
         'user.get_public_user',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -418,27 +427,27 @@ declare global {
        */
       post_public_user_avatar<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
-          data: object;
-          avatar: string;
+          code: number
+          msg: string
+          data: object
+          avatar: string
         }> & {
           data: {
-            avatar: Blob;
-          };
-        }
+            avatar: Blob
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
-          data: object;
-          avatar: string;
+          code: number
+          msg: string
+          data: object
+          avatar: string
         },
         'user.post_public_user_avatar',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -476,42 +485,42 @@ declare global {
        */
       get_public_user_id<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            id: number;
-            phone: string;
-            nickname: string;
-            avatar_path: string;
-            role: string;
-            status: string;
-            created_at: string;
-          };
+            id: number
+            phone: string
+            nickname: string
+            avatar_path: string
+            role: string
+            status: string
+            created_at: string
+          }
         }> & {
           pathParams: {
-            id: string;
-          };
-        }
+            id: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            id: number;
-            phone: string;
-            nickname: string;
-            avatar_path: string;
-            role: string;
-            status: string;
-            created_at: string;
-          };
+            id: number
+            phone: string
+            nickname: string
+            avatar_path: string
+            role: string
+            status: string
+            created_at: string
+          }
         },
         'user.get_public_user_id',
         Config
-      >;
-    };
+      >
+    }
     newsCategories: {
       /**
        * ---
@@ -542,24 +551,24 @@ declare global {
        */
       post_admin_news_categories<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           data: {
-            name: string;
-            description: string;
-          };
-        }
+            name: string
+            description: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'newsCategories.post_admin_news_categories',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -591,39 +600,39 @@ declare global {
        */
       get_admin_news_categories_list<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            total: number;
+            total: number
             list: Array<{
-              name: string;
-              description: string;
-              id: number;
-              sort_order: string;
-              created_at: string;
-            }>;
-          };
-        }>
+              name: string
+              description: string
+              id: number
+              sort_order: string
+              created_at: string
+            }>
+          }
+        }>,
       >(
-        config?: Config
+        config?: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            total: number;
+            total: number
             list: Array<{
-              name: string;
-              description: string;
-              id: number;
-              sort_order: string;
-              created_at: string;
-            }>;
-          };
+              name: string
+              description: string
+              id: number
+              sort_order: string
+              created_at: string
+            }>
+          }
         },
         'newsCategories.get_admin_news_categories_list',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -663,30 +672,30 @@ declare global {
        */
       put_admin_news_categories_id<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           pathParams: {
-            id: string;
-          };
+            id: string
+          }
           data: {
             /**
              * 名称
              */
-            name: string;
-            description: string;
-          };
-        }
+            name: string
+            description: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'newsCategories.put_admin_news_categories_id',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -715,24 +724,24 @@ declare global {
        */
       delete_admin_news_categories_id<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           pathParams: {
-            id: string;
-          };
-        }
+            id: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'newsCategories.delete_admin_news_categories_id',
         Config
-      >;
-    };
+      >
+    }
     news: {
       /**
        * ---
@@ -777,38 +786,38 @@ declare global {
        */
       post_admin_news<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           data: {
-            title: string;
-            category_id: number;
-            content: string;
+            title: string
+            category_id: number
+            content: string
             /**
              * 只能填审核中和直接发布
              */
-            status: string;
-            cover_url: string;
+            status: string
+            cover_url: string
             /**
              * 只能填 新闻和政策
              */
-            types?: string;
-            files_url?: string[];
-            abstract?: string;
-            keyword?: string[];
-            source?: string;
-          };
-        }
+            types?: string
+            files_url?: string[]
+            abstract?: string
+            keyword?: string[]
+            source?: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'news.post_admin_news',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -867,67 +876,67 @@ declare global {
        */
       get_admin_news_list<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            total: number;
+            total: number
             list: Array<{
-              id?: number;
-              title?: string;
-              category_id?: number;
-              category?: string;
-              abstract?: string;
-              keyword?: string[];
-              source?: string;
-              content?: string;
-              cover_url?: string;
-              files_url?: string[];
-              status?: string;
-              author?: string;
-              type?: string;
-              created_at?: string;
-              updated_at?: string;
-            }>;
-          };
+              id?: number
+              title?: string
+              category_id?: number
+              category?: string
+              abstract?: string
+              keyword?: string[]
+              source?: string
+              content?: string
+              cover_url?: string
+              files_url?: string[]
+              status?: string
+              author?: string
+              type?: string
+              created_at?: string
+              updated_at?: string
+            }>
+          }
         }> & {
           params: {
-            title?: string;
-            author?: string;
-            status?: string;
-            page?: number;
-            count?: number;
-          };
-        }
+            title?: string
+            author?: string
+            status?: string
+            page?: number
+            count?: number
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            total: number;
+            total: number
             list: Array<{
-              id?: number;
-              title?: string;
-              category_id?: number;
-              category?: string;
-              abstract?: string;
-              keyword?: string[];
-              source?: string;
-              content?: string;
-              cover_url?: string;
-              files_url?: string[];
-              status?: string;
-              author?: string;
-              type?: string;
-              created_at?: string;
-              updated_at?: string;
-            }>;
-          };
+              id?: number
+              title?: string
+              category_id?: number
+              category?: string
+              abstract?: string
+              keyword?: string[]
+              source?: string
+              content?: string
+              cover_url?: string
+              files_url?: string[]
+              status?: string
+              author?: string
+              type?: string
+              created_at?: string
+              updated_at?: string
+            }>
+          }
         },
         'news.get_admin_news_list',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -977,63 +986,65 @@ declare global {
        */
       get_admin_news_id<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            id: number;
-            title: string;
-            category_id: number;
-            abstract: string;
-            keyword: string[];
-            source: string;
-            content: string;
-            cover_url: string;
-            files_url: string[];
-            status: string;
-            author: string;
-            created_at: string;
-            updated_at: string;
-          };
+            id: number
+            title: string
+            category_id: number
+            abstract: string
+            keyword: string[]
+            source: string
+            content: string
+            cover_url: string
+            files_url: string[]
+            status: string
+            author: string
+            created_at: string
+            updated_at: string
+          }
           /**
            * 大类别(新闻/政策)
            * ---
            */
-          type: string;
+          type: string
         }> & {
           pathParams: {
-            id: string;
-          };
-        }
+            id: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            id: number;
-            title: string;
-            category_id: number;
-            abstract: string;
-            keyword: string[];
-            source: string;
-            content: string;
-            cover_url: string;
-            files_url: string[];
-            status: string;
-            author: string;
-            created_at: string;
-            updated_at: string;
-          };
+            id: number
+            title: string
+            category_id: number
+            category: string
+
+            abstract: string
+            keyword: string[]
+            source: string
+            content: string
+            cover_url: string
+            files_url: string[]
+            status: string
+            author: string
+            created_at: string
+            updated_at: string
+          }
           /**
            * 大类别(新闻/政策)
            * ---
            */
-          type: string;
+          type: string
         },
         'news.get_admin_news_id',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -1056,15 +1067,15 @@ declare global {
        * ```ts
        * type RequestBody = {
        *   title: string
-       *   category_id: string
+       *   category_id: number
        *   content: string
        *   status: string
-       *   cover: string
+       *   cover_url: string
        *   // [items] start
        *   // [items] end
-       *   files: string[]
+       *   files_url: string[]
        *   abstract: string
-       *   type: string
+       *   types: string
        *   // [items] start
        *   // [items] end
        *   keyword: string[]
@@ -1084,35 +1095,35 @@ declare global {
        */
       put_admin_news_id<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           pathParams: {
-            id: string;
-          };
+            id: string
+          }
           data: {
-            title: string;
-            category_id: string;
-            content: string;
-            status: string;
-            cover: string;
-            files: string[];
-            abstract: string;
-            type: string;
-            keyword: string[];
-            source: string;
-          };
-        }
+            title: string
+            category_id: number
+            content: string
+            status: string
+            cover_url: string
+            files_url: string[]
+            abstract: string
+            types: string
+            keyword: string[]
+            source: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'news.put_admin_news_id',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -1141,23 +1152,23 @@ declare global {
        */
       delete_admin_news_id<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           pathParams: {
-            id: string;
-          };
-        }
+            id: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'news.delete_admin_news_id',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -1195,27 +1206,27 @@ declare global {
        */
       put_admin_news_status_id<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           pathParams: {
-            id: string;
-          };
+            id: string
+          }
           data: {
-            status: string;
-          };
-        }
+            status: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'news.put_admin_news_status_id',
         Config
-      >;
-    };
+      >
+    }
     goods: {
       /**
        * ---
@@ -1264,55 +1275,55 @@ declare global {
        */
       get_public_good_list<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            total: number;
+            total: number
             list: Array<{
-              id: number;
-              userid: number;
-              created_at: string;
-              title: string;
-              content: string;
-              tag_name: string;
-              tag_weigh: string;
-              tag_price: string;
-              cover_url: string;
-              like: string;
-            }>;
-          };
+              id: number
+              userid: number
+              created_at: string
+              title: string
+              content: string
+              tag_name: string
+              tag_weigh: string
+              tag_price: string
+              cover_url: string
+              like: string
+            }>
+          }
         }> & {
           params: {
-            title?: string;
-            page?: number;
-            count?: number;
-          };
-        }
+            title?: string
+            page?: number
+            count?: number
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            total: number;
+            total: number
             list: Array<{
-              id: number;
-              userid: number;
-              created_at: string;
-              title: string;
-              content: string;
-              tag_name: string;
-              tag_weigh: string;
-              tag_price: string;
-              cover_url: string;
-              like: string;
-            }>;
-          };
+              id: number
+              userid: number
+              created_at: string
+              title: string
+              content: string
+              tag_name: string
+              tag_weigh: string
+              tag_price: string
+              cover_url: string
+              like: string
+            }>
+          }
         },
         'goods.get_public_good_list',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -1359,55 +1370,55 @@ declare global {
        */
       get_public_good_id<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            id: number;
-            user_id: number;
-            title: string;
-            content: string;
-            cover_url: string;
-            files_url: string[];
-            publisher_name: string;
-            created_at: string;
-            like: string;
+            id: number
+            user_id: number
+            title: string
+            content: string
+            cover_url: string
+            files_url: string[]
+            publisher_name: string
+            created_at: string
+            like: string
             tags: {
-              name: string;
-              price: string;
-              weight: string;
-            };
-          };
+              name: string
+              price: string
+              weight: string
+            }
+          }
         }> & {
           pathParams: {
-            id: string;
-          };
-        }
+            id: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            id: number;
-            user_id: number;
-            title: string;
-            content: string;
-            cover_url: string;
-            files_url: string[];
-            publisher_name: string;
-            created_at: string;
-            like: string;
+            id: number
+            user_id: number
+            title: string
+            content: string
+            cover_url: string
+            files_url: string[]
+            publisher_name: string
+            created_at: string
+            like: string
             tags: {
-              name: string;
-              price: string;
-              weight: string;
-            };
-          };
+              name: string
+              price: string
+              weight: string
+            }
+          }
         },
         'goods.get_public_good_id',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -1434,12 +1445,12 @@ declare global {
       delete_public_good_id<
         Config extends Alova2MethodConfig<object> & {
           pathParams: {
-            id: string;
-          };
-        }
+            id: string
+          }
+        },
       >(
-        config: Config
-      ): Alova2Method<object, 'goods.delete_public_good_id', Config>;
+        config: Config,
+      ): Alova2Method<object, 'goods.delete_public_good_id', Config>
       /**
        * ---
        *
@@ -1477,32 +1488,32 @@ declare global {
        */
       post_public_good<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           data: {
             /**
              * ID 编号
              */
-            title: string;
-            content: string;
-            cover: string;
-            files?: string[];
-            tag_name?: string;
-            tag_weigh?: string;
-            tag_price?: string;
-          };
-        }
+            title: string
+            content: string
+            cover: string
+            files?: string[]
+            tag_name?: string
+            tag_weigh?: string
+            tag_price?: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'goods.post_public_good',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -1547,51 +1558,51 @@ declare global {
        */
       get_public_good_id_comment<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            total: number;
+            total: number
             list: Array<{
-              avatar: string;
-              id: string;
-              publisher_name: string;
-              comment: string;
-              role: string;
-              like: string;
-              user_id: number;
-              reply_id: number;
-              created_at: string;
-            }>;
-          };
+              avatar: string
+              id: string
+              publisher_name: string
+              comment: string
+              role: string
+              like: string
+              user_id: number
+              reply_id: number
+              created_at: string
+            }>
+          }
         }> & {
           pathParams: {
-            id: string;
-          };
-        }
+            id: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            total: number;
+            total: number
             list: Array<{
-              avatar: string;
-              id: string;
-              publisher_name: string;
-              comment: string;
-              role: string;
-              like: string;
-              user_id: number;
-              reply_id: number;
-              created_at: string;
-            }>;
-          };
+              avatar: string
+              id: string
+              publisher_name: string
+              comment: string
+              role: string
+              like: string
+              user_id: number
+              reply_id: number
+              created_at: string
+            }>
+          }
         },
         'goods.get_public_good_id_comment',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -1630,27 +1641,27 @@ declare global {
        */
       post_public_good_id_comment<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           pathParams: {
-            id: string;
-          };
+            id: string
+          }
           data: {
-            comment: string;
-            reply_id: number;
-          };
-        }
+            comment: string
+            reply_id: number
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'goods.post_public_good_id_comment',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -1699,48 +1710,48 @@ declare global {
        */
       get_public_good_comment_id<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            avatar: string;
-            id: string;
-            publisher_name: string;
-            comment: string;
-            role: string;
-            like: string;
-            user_id: number;
-            reply_id: number;
-            created_at: string;
-          };
+            avatar: string
+            id: string
+            publisher_name: string
+            comment: string
+            role: string
+            like: string
+            user_id: number
+            reply_id: number
+            created_at: string
+          }
         }> & {
           pathParams: {
-            id: string;
-          };
+            id: string
+          }
           params: {
-            comment?: string;
-          };
-        }
+            comment?: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            avatar: string;
-            id: string;
-            publisher_name: string;
-            comment: string;
-            role: string;
-            like: string;
-            user_id: number;
-            reply_id: number;
-            created_at: string;
-          };
+            avatar: string
+            id: string
+            publisher_name: string
+            comment: string
+            role: string
+            like: string
+            user_id: number
+            reply_id: number
+            created_at: string
+          }
         },
         'goods.get_public_good_comment_id',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -1768,22 +1779,22 @@ declare global {
        */
       delete_public_good_comment_id<
         Config extends Alova2MethodConfig<{
-          code: string;
+          code: string
         }> & {
           pathParams: {
-            id: string;
-          };
-        }
+            id: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: string;
+          code: string
         },
         'goods.delete_public_good_comment_id',
         Config
-      >;
-    };
+      >
+    }
     general: {
       /**
        * ---
@@ -1812,13 +1823,13 @@ declare global {
       get_files_types_name<
         Config extends Alova2MethodConfig<object> & {
           pathParams: {
-            types: string;
-            name: string;
-          };
-        }
+            types: string
+            name: string
+          }
+        },
       >(
-        config: Config
-      ): Alova2Method<object, 'general.get_files_types_name', Config>;
+        config: Config,
+      ): Alova2Method<object, 'general.get_files_types_name', Config>
       /**
        * ---
        *
@@ -1859,32 +1870,32 @@ declare global {
        */
       post_public_files_types<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            name: string;
-          };
+            name: string
+          }
         }> & {
           pathParams: {
-            types: string;
-          };
+            types: string
+          }
           data: {
-            file: Blob;
-          };
-        }
+            file: Blob
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            name: string;
-          };
+            name: string
+          }
         },
         'general.post_public_files_types',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -1912,13 +1923,13 @@ declare global {
       delete_public_files_types_name<
         Config extends Alova2MethodConfig<object> & {
           pathParams: {
-            types: string;
-            name: string;
-          };
-        }
+            types: string
+            name: string
+          }
+        },
       >(
-        config: Config
-      ): Alova2Method<object, 'general.delete_public_files_types_name', Config>;
+        config: Config,
+      ): Alova2Method<object, 'general.delete_public_files_types_name', Config>
       /**
        * ---
        *
@@ -1954,13 +1965,13 @@ declare global {
       post_auth_login_code<
         Config extends Alova2MethodConfig<Login> & {
           data: {
-            phone: string;
-            auth_code: string;
-          };
-        }
+            phone: string
+            auth_code: string
+          }
+        },
       >(
-        config: Config
-      ): Alova2Method<Login, 'general.post_auth_login_code', Config>;
+        config: Config,
+      ): Alova2Method<Login, 'general.post_auth_login_code', Config>
       /**
        * ---
        *
@@ -1995,34 +2006,34 @@ declare global {
        */
       post_auth_login_pwd<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            id: number;
-            token: string;
-            role: string;
-          };
+            id: number
+            token: string
+            role: string
+          }
         }> & {
           data: {
-            phone: string;
-            password: string;
-          };
-        }
+            phone: string
+            password: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
           data: {
-            id: number;
-            token: string;
-            role: string;
-          };
+            id: number
+            token: string
+            role: string
+          }
         },
         'general.post_auth_login_pwd',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -2053,25 +2064,25 @@ declare global {
        */
       post_auth_register<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           data: {
-            phone: string;
-            password: string;
-            auth_code: string;
-          };
-        }
+            phone: string
+            password: string
+            auth_code: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'general.post_auth_register',
         Config
-      >;
+      >
       /**
        * ---
        *
@@ -2098,12 +2109,12 @@ declare global {
       post_auth_code<
         Config extends Alova2MethodConfig<object> & {
           data: {
-            phone: string;
-          };
-        }
+            phone: string
+          }
+        },
       >(
-        config: Config
-      ): Alova2Method<object, 'general.post_auth_code', Config>;
+        config: Config,
+      ): Alova2Method<object, 'general.post_auth_code', Config>
       /**
        * ---
        *
@@ -2134,27 +2145,27 @@ declare global {
        */
       put_auth_password<
         Config extends Alova2MethodConfig<{
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         }> & {
           data: {
-            phone: string;
-            auth_code: string;
-            password: string;
-          };
-        }
+            phone: string
+            auth_code: string
+            password: string
+          }
+        },
       >(
-        config: Config
+        config: Config,
       ): Alova2Method<
         {
-          code: number;
-          msg: string;
+          code: number
+          msg: string
         },
         'general.put_auth_password',
         Config
-      >;
-    };
+      >
+    }
   }
 
-  var Apis: Apis;
+  var Apis: Apis
 }

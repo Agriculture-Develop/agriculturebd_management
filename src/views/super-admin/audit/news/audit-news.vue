@@ -1,45 +1,53 @@
 <template>
   <div class="audit-news-container">
-    <el-page-header @back="goBack" title="返回" content="新闻审核">
+    <el-page-header
+      @back="goBack"
+      title="返回"
+      :content="newsModel === 'publish' ? '新闻发布' : '新闻审核'"
+    >
       <template #extra>
         <div class="header-actions">
-          <el-button type="success" :style="{ backgroundColor: primaryColor }" @click="handleApprove">通过</el-button>
-          <el-button type="danger" @click="handleReject">驳回</el-button>
+          <el-button
+            type="success"
+            :style="{ backgroundColor: primaryColor }"
+            @click="handleApprove"
+            >{{ newsModel === 'publish' ? '发布' : '通过' }}</el-button
+          >
+          <el-button type="danger" @click="handleReject">{{
+            newsModel === 'publish' ? '下线' : '驳回'
+          }}</el-button>
         </div>
       </template>
     </el-page-header>
 
-    <div class="news-content" v-if="newsDetail">
-      <h1 class="news-title">{{ newsDetail.title }}</h1>
+    <div class="news-content" v-if="newsForm">
+      <h1 class="news-title">{{ newsForm.title }}</h1>
 
       <div class="news-meta">
-        <span>作者：{{ newsDetail.author }}</span>
-        <span>提交时间：{{ newsDetail.submitTime }}</span>
-        <span>分类：{{ newsDetail.category }}</span>
-        <el-tag :type="getStatusType(newsDetail.status)">{{ newsDetail.status }}</el-tag>
+        <span>作者：{{ newsForm.source }}</span>
+        <span>提交时间：{{ newsForm.created_at }}</span>
+        <span>分类：{{ newsForm.category }}</span>
+        <!-- <el-tag :type="getStatusType(newsForm.status)">{{ newsForm.status }}</el-tag> -->
+        <span style="display: flex; gap: 20px; width: 80px; height: 30px">
+          <el-tag size="large" type="success" v-for="item in newsForm.keyword" :key="item">{{
+            item
+          }}</el-tag>
+        </span>
       </div>
 
-      <div class="news-body">
-        <div v-html="newsDetail.content"></div>
-      </div>
-
-      <div class="attachment-section" v-if="newsDetail.attachments && newsDetail.attachments.length > 0">
-        <h3>附件</h3>
-        <div class="attachment-list">
-          <div v-for="(item, index) in newsDetail.attachments" :key="index" class="attachment-item">
-            <el-icon>
-              <Document />
-            </el-icon>
-            <span>{{ item.name }}</span>
-            <el-button type="primary" :style="{ backgroundColor: primaryColor }" size="small"
-              @click="previewAttachment(item)">预览</el-button>
-          </div>
+      <div class="images-wrapper">
+        <div class="image-container" v-for="item in newsForm.files_url" :key="item">
+          <el-image :src="newsImg(item)" fit="contain" class="preview-img" />
         </div>
       </div>
+      <div class="news-body">
+        <div v-html="newsForm.content"></div>
+      </div>
 
-      <div class="audit-section">
-        <h3>审核意见</h3>
-        <el-input v-model="auditComment" type="textarea" :rows="4" placeholder="请输入审核意见..."></el-input>
+      <div style="display: flex; gap: 20px; width: 80px; height: 30px">
+        <el-tag size="large" type="success" v-for="item in newsForm.keyword" :key="item">{{
+          item
+        }}</el-tag>
       </div>
     </div>
 
@@ -49,7 +57,9 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" :style="{ backgroundColor: primaryColor }" @click="confirmAudit">确认</el-button>
+          <el-button type="primary" :style="{ backgroundColor: primaryColor }" @click="confirmAudit"
+            >确认</el-button
+          >
         </span>
       </template>
     </el-dialog>
@@ -57,45 +67,53 @@
 </template>
 
 <script setup lang="ts">
-import { Document } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useNewsStore } from '@/stores/news/news'
+import { newsImg } from '@/utils/imges'
+const store = useNewsStore()
+const route = useRoute()
 const router = useRouter()
+const newsId = ref<string>()
+const newsModel = ref<string>()
+type Inews = {
+  id: number
+  title: string
+  keyword: string[]
+  source: string
+  content: string
+  cover_url: string
+  files_url: string[]
+  status: string
+  author: string
+  created_at: string
+  category: string
+}
+const loadDetail = async (id: string) => {
+  console.log(' id:', id)
+  // TODO: 接口获取数据并填充表单
+  newsId.value = id
+  const res = await store.getNewsID(String(id))
+  newsForm.value = res
+  console.log(res)
+}
 
+onMounted(() => {
+  if (route.query.id) {
+    console.log('编辑模式，id:', route.query.id)
+    loadDetail(route.query.id as string)
+  }
+  if (route.query.type) {
+    newsModel.value = route.query.type as string
+  }
+})
 // 定义农产品相关的主题绿色
-const primaryColor = '#2e8b57'; // 海绿色
+const primaryColor = '#2e8b57' // 海绿色
 // const secondaryColor = '#3cb371'; // 中等海绿色
 
 // 当前审核的新闻详情
-const newsDetail = ref({
-  id: 1,
-  title: '农产品价格走势分析',
-  author: 'admin',
-  submitTime: '2023-11-15 14:30:45',
-  category: '科学技术',
-  status: '审核中',
-  content: `
-    <p>近年来，随着市场需求的不断变化和农业生产技术的提高，农产品价格呈现出了一些新的变化趋势。</p>
-    <h3>一、价格波动因素</h3>
-    <p>1. 季节性因素：农产品生产具有明显的季节性，这直接导致了市场供应量的变化，进而影响价格。</p>
-    <p>2. 气候条件：极端天气事件如干旱、洪涝等会直接影响农产品产量，从而影响价格。</p>
-    <p>3. 政策因素：农业补贴政策、进出口政策等会对农产品价格形成支撑或抑制作用。</p>
-    <h3>二、主要农产品价格走势</h3>
-    <p>1. 粮食类：整体呈现稳中有升的态势，尤其是优质粮食品种价格上涨明显。</p>
-    <p>2. 果蔬类：季节性波动较大，但总体上受到物流改善和储存技术提高的影响，价格波动幅度有所减小。</p>
-    <p>3. 肉禽蛋类：受饲料价格和疫情影响，价格波动较大，但总体保持在较高水平。</p>
-    <h3>三、未来展望</h3>
-    <p>1. 随着农业科技的发展，预计农产品产量将进一步提高，但优质化、特色化农产品将更具价格优势。</p>
-    <p>2. 气候变化可能导致极端天气事件增加，增加农产品价格的不确定性。</p>
-    <p>3. "互联网+"农业模式的推广，将优化农产品供应链，减少中间环节，有利于农产品价格稳定。</p>
-  `,
-  attachments: [
-    { id: 1, name: '价格走势数据表.xlsx', url: 'https://example.com/file1.xlsx' },
-    { id: 2, name: '相关政策文件.pdf', url: 'https://example.com/file2.pdf' }
-  ]
-})
+const newsForm = ref<Inews>()
 
 // 审核意见
 const auditComment = ref('')
@@ -127,45 +145,60 @@ const goBack = () => {
 
 // 通过审核
 const handleApprove = () => {
-  dialogTitle.value = '确认通过审核'
-  dialogContent.value = '确定要通过该新闻的审核吗？'
-  auditAction.value = 'approve'
-  dialogVisible.value = true
+  if (newsModel.value !== 'publish') {
+    dialogTitle.value = '确认通过审核'
+    dialogContent.value = '确定要通过该新闻的审核吗？'
+    auditAction.value = 'approve'
+    dialogVisible.value = true
+  } else {
+    dialogTitle.value = '确认发布'
+    dialogContent.value = '确定要发布该新闻吗？'
+    auditAction.value = 'approve'
+    dialogVisible.value = true
+  }
 }
-
 // 驳回审核
 const handleReject = () => {
-  if (!auditComment.value.trim()) {
-    ElMessage.warning('驳回时必须填写审核意见')
-    return
+  if (newsModel.value !== 'publish') {
+    dialogTitle.value = '确认驳回审核'
+    dialogContent.value = '确定要驳回该新闻的审核吗？'
+    auditAction.value = 'reject'
+    dialogVisible.value = true
+  } else {
+    dialogTitle.value = '确认下线'
+    dialogContent.value = '确定下线发布该新闻吗？'
+    auditAction.value = 'reject'
+    dialogVisible.value = true
   }
-
-  dialogTitle.value = '确认驳回审核'
-  dialogContent.value = '确定要驳回该新闻的审核吗？'
-  auditAction.value = 'reject'
-  dialogVisible.value = true
 }
 
 // 确认审核操作
-const confirmAudit = () => {
+const confirmAudit = async () => {
+  console.log(auditAction.value)
+
   if (auditAction.value === 'approve') {
     // 执行通过操作
-    newsDetail.value.status = '已通过'
+
+    await Apis.news.put_admin_news_status_id({
+      pathParams: { id: String(newsForm.value?.id) },
+      data: { status: newsModel.value !== 'publish' ? '审核已通过' : '已发布' },
+    })
+    loadDetail(route.query.id as string)
     ElMessage.success('审核已通过')
   } else {
     // 执行驳回操作
-    newsDetail.value.status = '已拒绝'
+    await Apis.news.put_admin_news_status_id({
+      pathParams: { id: String(newsForm.value?.id) },
+      data: { status: newsModel.value !== 'publish' ? '审核已驳回' : '已下线' },
+    })
     ElMessage.success('审核已驳回')
   }
 
   dialogVisible.value = false
-  // 可以跳转回列表页
-  // router.push('/super-admin/audit/list')
-}
+  loadDetail(route.query.id as string)
 
-// 预览附件
-const previewAttachment = (item: any) => {
-  window.open(item.url, '_blank')
+  // 可以跳转回列表页
+  router.push('/super-admin/audit/list')
 }
 </script>
 
@@ -195,6 +228,7 @@ const previewAttachment = (item: any) => {
     .news-meta {
       display: flex;
       flex-wrap: wrap;
+      align-items: center;
       gap: 20px;
       color: #666;
       margin-bottom: 20px;
@@ -243,7 +277,27 @@ const previewAttachment = (item: any) => {
       border-top: 1px dashed #eee;
     }
   }
-
+  .images-wrapper {
+    display: flex;
+    flex-wrap: wrap; /* 超出自动换行，如果不想换行可去掉 */
+    gap: 40px; /* 图片之间的间距 */
+    align-items: center;
+    justify-content: center;
+  }
+  .image-container {
+    width: 200px;
+    height: 150px;
+    display: flex;
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+    overflow: hidden; /* 避免图片溢出 */
+    border: 1px solid #eee;
+    border-radius: 6px;
+  }
+  .preview-img {
+    width: 100%;
+    height: 100%;
+  }
   :deep(.el-button--primary) {
     background-color: #2e8b57; // 海绿色
     border-color: #2e8b57;

@@ -99,12 +99,12 @@ const defaultActive = computed(() => route.path)
           </template>
 
           <!-- 审核新闻 -->
-          <el-menu-item
+          <!-- <el-menu-item
             index="/super-admin/audit/news"
             @click="handleItemClick('/super-admin/audit/news')"
           >
             审核新闻
-          </el-menu-item>
+          </el-menu-item> -->
 
           <!-- 审核列表 -->
           <el-menu-item
@@ -125,27 +125,27 @@ const defaultActive = computed(() => route.path)
           </template>
 
           <!-- 未发布 -->
-          <el-menu-item
+          <!-- <el-menu-item
             index="/super-admin/publish/unpublished"
             @click="handleItemClick('/super-admin/publish/unpublished')"
           >
             未发布
-          </el-menu-item>
+          </el-menu-item> -->
 
           <!-- 已发布 -->
-          <el-menu-item
+          <!-- <el-menu-item
             index="/super-admin/publish/published"
             @click="handleItemClick('/super-admin/publish/published')"
           >
             已发布
-          </el-menu-item>
+          </el-menu-item> -->
 
           <!-- 已下线 -->
           <el-menu-item
             index="/super-admin/publish/offline"
             @click="handleItemClick('/super-admin/publish/offline')"
           >
-            已下线
+            发布列表
           </el-menu-item>
         </el-sub-menu>
       </el-menu>

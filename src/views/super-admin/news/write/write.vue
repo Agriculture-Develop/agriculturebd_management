@@ -20,18 +20,6 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="发布状态" prop="status">
-          <el-select v-model="newsForm.status" placeholder="请选择发布状态">
-            <el-option label="审核中" value="直接发布"></el-option>
-            <el-option label="直接发布" value="已发布"></el-option>
-          </el-select>
-          <el-tooltip content="超级管理员可以选择直接发布或提交审核" placement="right">
-            <el-icon class="el-icon--right">
-              <QuestionFilled />
-            </el-icon>
-          </el-tooltip>
-        </el-form-item>
-
         <!-- <el-form-item label="置顶文章">
           <el-switch v-model="newsForm.isTop" />
         </el-form-item> -->
@@ -44,6 +32,7 @@
         <el-form-item label="封面图片" prop="cover_url">
           <el-upload
             v-model:file-list="coverList"
+            ref="upload"
             action="/public/files/news"
             list-type="picture-card"
             name="file"
@@ -94,7 +83,7 @@
             />
             <Editor
               style="height: 400px; overflow-y: hidden"
-              v-model="valueHtml"
+              v-model="newsForm.content"
               :defaultConfig="editorConfig"
               mode="default"
               @onCreated="handleCreated"
@@ -153,12 +142,12 @@
           <el-button
             type="primary"
             :style="{ backgroundColor: primaryColor }"
-            @click="submitForm(newsFormRef)"
+            @click="submitForm(newsFormRef, newsId ? 'edit' : undefined)"
             >提交</el-button
           >
           <el-button
             :style="{ backgroundColor: secondaryColor, color: '#fff' }"
-            @click="submitForm(newsFormRef, 'draft')"
+            @click="submitForm(newsFormRef, 'edit')"
             >保存草稿</el-button
           >
           <el-button @click="resetForm(newsFormRef)">重置</el-button>
@@ -216,14 +205,33 @@
 
 <script setup lang="ts">
 import { QuestionFilled } from '@element-plus/icons-vue'
-import type { FormInstance, FormRules, UploadProps, UploadUserFile } from 'element-plus'
+import type {
+  FormInstance,
+  FormRules,
+  UploadProps,
+  UploadUserFile,
+  UploadInstance,
+} from 'element-plus'
 import { ElMessage } from 'element-plus'
-import { computed, nextTick, reactive, ref, shallowRef, onBeforeUnmount } from 'vue'
+import {
+  computed,
+  nextTick,
+  reactive,
+  ref,
+  shallowRef,
+  onBeforeUnmount,
+  watchEffect,
+  onMounted,
+} from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import '@wangeditor/editor/dist/css/style.css'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import { localCache } from '@/utils/cache/cache'
-
+import { useRoute } from 'vue-router'
+import { useNewsStore } from '@/stores/news/news'
+import { newsImg } from '@/utils/imges'
+const store = useNewsStore()
+const route = useRoute()
 // 定义农产品相关的主题绿色
 const primaryColor = '#2e8b57' // 海绿色
 const secondaryColor = '#3cb371' // 中等海绿色
@@ -235,12 +243,9 @@ const previewDialogVisible = ref(false)
 const inputValue = ref('')
 const inputVisible = ref(false)
 const tagInputRef = ref<HTMLInputElement>()
-
+const upload = ref<UploadInstance>()
 // 编辑器实例，必须用 shallowRef
 const editorRef = shallowRef()
-
-// 内容 HTML
-const valueHtml = ref('<p>请输入新闻内容</p>')
 
 // 工具栏配置
 const toolbarConfig = {
@@ -274,16 +279,34 @@ const handleChange = (editor: any) => {
 const newsForm = reactive({
   title: '',
   category_id: 2,
-  status: '审核中',
-
-  content: '<p>请输入新闻内容</p>',
+  content: '',
   cover_url: '',
   files_url: [''],
   keyword: [] as string[],
-  // attachments: [] as Attachment[],
   abstract: '',
   source: '',
   types: '新闻',
+  status: '审核中',
+})
+const newsId = ref<string>()
+const loadDetail = async (id: string) => {
+  console.log('id:', id)
+  // TODO: 接口获取数据并填充表单
+  newsId.value = id
+  const res = await store.getNewsID(id)
+  coverList.value = [{ name: res.cover_url, url: newsImg(res.cover_url) }]
+  res.files_url.forEach((i) => {
+    fileList.value.push({ name: i, url: newsImg(i) })
+  })
+
+  Object.assign(newsForm, res)
+}
+
+onMounted(() => {
+  if (route.query.id) {
+    console.log('编辑模式，id:', route.query.id)
+    loadDetail(route.query.id as string)
+  }
 })
 //获取新闻分类
 type InewsCategory = {
@@ -295,7 +318,10 @@ type InewsCategory = {
 }
 const newsCategories = ref<InewsCategory[]>([])
 const getCategory = async () => {
-  const res = await Apis.newsCategories.get_admin_news_categories_list()
+  const res = await Apis.newsCategories.get_admin_news_categories_list({
+    cache: 'no-cache',
+    cacheFor: 0,
+  })
   console.log(res)
   newsCategories.value = res.data.list
 }
@@ -327,7 +353,7 @@ const rules = reactive<FormRules>({
     { min: 3, max: 50, message: '标题长度应在 3 到 50 个字符之间', trigger: 'blur' },
   ],
   category_id: [{ required: true, message: '请选择新闻分类', trigger: 'change' }],
-  status: [{ required: true, message: '请选择发布状态', trigger: 'change' }],
+  // status: [{ required: true, message: '请选择发布状态', trigger: 'change' }],
 
   content: [
     { required: true, message: '请输入新闻内容', trigger: 'blur' },
@@ -351,7 +377,7 @@ const rules = reactive<FormRules>({
 })
 
 // 提交表单
-const submitForm = async (formEl: FormInstance | undefined, type?: 'draft') => {
+const submitForm = async (formEl: FormInstance | undefined, type?: 'edit') => {
   if (!formEl) return
 
   try {
@@ -359,9 +385,14 @@ const submitForm = async (formEl: FormInstance | undefined, type?: 'draft') => {
 
     // 构建提交的数据
     newsForm.files_url = fileList.value.map((item) => {
-      return (item.response as { data: { name: string } }).data.name
+      if (item.response === undefined) {
+        return item.name as string
+      } else return (item.response as { data: { name: string } }).data.name
     })
-    newsForm.cover_url = (coverList.value[0].response as { data: { name: string } }).data.name
+
+    if (coverList.value[0].response === undefined)
+      newsForm.files_url.unshift(coverList.value[0].name)
+    else newsForm.cover_url = (coverList.value[0].response as { data: { name: string } }).data.name
 
     // const submitData = {
     //   ...newsForm,
@@ -371,19 +402,14 @@ const submitForm = async (formEl: FormInstance | undefined, type?: 'draft') => {
     console.log('提交的新闻数据:', newsForm)
 
     // 调接口
-    const res = await Apis.news.post_admin_news({ data: newsForm })
-    console.log(res)
-
-    // 成功提示 & 重置表单
-    // if (type === 'draft') {
-    //   ElMessage.success('草稿已保存')
-    // } else if (newsForm.status === '已发布') {
-    //   ElMessage.success('新闻已直接发布')
-    //   resetForm(formEl)
-    // } else {
-    //   ElMessage.success('新闻已提交审核')
-    //   resetForm(formEl)
-    // }
+    if (type === 'edit') {
+      await Apis.news.put_admin_news_id({
+        data: { ...newsForm },
+        pathParams: { id: newsId.value as string },
+      })
+    } else {
+      await Apis.news.post_admin_news({ data: newsForm })
+    }
   } catch (err) {
     // 验证失败或接口报错
     console.error(err)
@@ -402,13 +428,13 @@ const resetForm = (formEl: FormInstance | undefined) => {
   newsForm.title = ''
   newsForm.types = '新闻'
   newsForm.category_id = 2
-  newsForm.status = '审核中'
   newsForm.abstract = ''
   newsForm.source = ''
-  // newsForm.attachments = []
+  newsForm.status = '审核中'
   fileList.value = []
   coverList.value = []
 }
+watchEffect(() => console.log(coverList.value))
 
 // 预览新闻
 const previewNews = () => {
@@ -457,6 +483,10 @@ const beforeUpload: UploadProps['beforeUpload'] = (file) => {
 //上传图片逻辑处理
 const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
   console.log(uploadFile, uploadFiles)
+
+  if (uploadFile.response === undefined) {
+    return
+  }
   const res = (uploadFile.response as { data: { name: string } }).data.name
   console.log(res, '删除的文件名')
 
@@ -491,7 +521,15 @@ const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
     border-radius: 4px;
     overflow: hidden;
   }
-
+  .w-e-full-screen-container {
+    z-index: 3000 !important; /* 必须比 el-dialog / el-form 高 */
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff; /* 给个背景，避免透出后面内容 */
+  }
   .cover-image {
     width: 200px;
     height: 150px;

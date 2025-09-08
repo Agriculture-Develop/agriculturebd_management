@@ -1,186 +1,261 @@
+<script setup lang="ts">
+import type { FormInstance } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { computed, onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useNewsStore } from '@/stores/news/news'
+// 主题色
+const primaryColor = '#2e8b57'
+// 次要按钮色
+const secondaryColor = '#409EFF'
+const dialogFormVisible = ref(false)
+const selectId = ref('')
+const router = useRouter()
+const store = useNewsStore()
+// 搜索表单
+const searchForm = reactive({
+  title: '',
+})
+const searchFormRef = ref<FormInstance>()
+
+// 分页相关
+const currentPage = ref(1)
+const pageSize = ref(10)
+const total = ref(100)
+//paged分页
+const paged = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return draftsList.value.slice(start, end)
+})
+// 草稿列表数据
+type Draft = {
+  id?: number | undefined
+  title?: string | undefined
+  category_id?: number | undefined
+  category?: string | undefined
+  abstract?: string | undefined
+  keyword?: string[] | undefined
+  source?: string | undefined
+  content?: string | undefined
+  cover_url?: string | undefined
+  files_url?: string[] | undefined
+  status?: string | undefined
+  author?: string | undefined
+  type?: string | undefined
+  created_at?: string | undefined
+  updated_at?: string | undefined
+}
+// 获取状态标签类型
+const getStatusType = (status: string) => {
+  switch (status) {
+    case '':
+      return 'warning'
+    case '已发布':
+      return 'success'
+    case '已下线':
+      return 'warning'
+    case '未发布':
+      return 'warning'
+    default:
+      return 'info'
+  }
+}
+
+const options = [
+  {
+    id: '1',
+    label: '发布',
+    value: '已发布',
+  },
+  {
+    id: '2',
+    label: '下线',
+    value: '已下线',
+  },
+]
+const status = ref(options[0].value)
+
+const draftsList = ref<Draft[]>([])
+onMounted(async () => {
+  getnewsList()
+})
+// 查询草稿列表
+const getnewsList = async () => {
+  const res = await Apis.news.get_admin_news_list({
+    params: {},
+    cache: 'no-cache',
+    cacheFor: 0,
+  })
+  draftsList.value = res.data.list
+  draftsList.value = draftsList.value.filter(
+    (item) => item.status !== '未提交' && item.status !== '审核中' && item.status !== '审核已驳回',
+  )
+  console.log(draftsList.value)
+
+  total.value = res.data.total
+}
+const searchDrafts = async () => {
+  console.log('搜索条件:', searchForm)
+  // 这里应该调用API获取数据
+  const res = await Apis.news.get_admin_news_list({ params: { title: searchForm.title } })
+  console.log(res, 'ressss')
+
+  draftsList.value = res.data.list
+  total.value = res.data.total
+}
+
+// 重置搜索
+const resetSearch = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  formEl.resetFields()
+  // 重置后重新加载数据
+  const res = await Apis.news.get_admin_news_list({ params: {} })
+
+  draftsList.value = res.data.list
+  total.value = res.data.total
+}
+
+// 处理分页
+const handleSizeChange = (val: number) => {
+  pageSize.value = val
+  // 重新加载数据
+}
+
+const handleCurrentChange = (val: number) => {
+  currentPage.value = val
+  // 重新加载数据
+}
+
+// 编辑草稿
+const editDraft = (row: any) => {
+  console.log('编辑草稿:', row)
+  store.newsId = row.id
+  router.push(`/super-admin/audit/news?id=${row.id}&type=publish`)
+}
+const openDialogVisible = (id) => {
+  dialogFormVisible.value = true
+  selectId.value = id
+}
+// 提交审核
+const submitStatus = async () => {
+  // 调用提交API
+  console.log('提交审核:')
+  console.log('提交审核:', status.value)
+  const res = await Apis.news.put_admin_news_status_id({
+    pathParams: { id: String(selectId.value) },
+    data: { status: status.value },
+  })
+  console.log(res)
+  dialogFormVisible.value = false
+
+  ElMessage({
+    type: 'success',
+    message: '提交成功',
+  })
+  getnewsList()
+}
+</script>
+
 <template>
-  <div class="offline-container">
-    <h1>已下线新闻</h1>
+  <div class="drafts-container">
+    <h1>新闻列表</h1>
 
     <el-card class="search-card">
-      <el-form :inline="true" :model="searchForm" ref="searchFormRef">
-        <el-form-item label="新闻标题">
-          <el-input v-model="searchForm.title" placeholder="请输入新闻标题"></el-input>
-        </el-form-item>
-        <el-form-item label="下线时间">
-          <el-date-picker v-model="searchForm.dateRange" type="daterange" range-separator="至" start-placeholder="开始日期"
-            end-placeholder="结束日期" />
+      <el-form :inline="true" :model="searchForm" ref="searchFormRef" @submit.prevent>
+        <el-form-item label="标题">
+          <el-input v-model="searchForm.title" placeholder="请输入标题"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :style="{ backgroundColor: primaryColor }" @click="searchNewsList">搜索</el-button>
+          <el-button type="primary" :style="{ backgroundColor: primaryColor }" @click="searchDrafts"
+            >搜索</el-button
+          >
           <el-button @click="resetSearch(searchFormRef)">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card class="table-card">
-      <el-table :data="newsList" style="width: 100%" border>
-        <el-table-column prop="title" label="新闻标题" width="300" />
-        <el-table-column prop="category" label="分类" width="200" />
-        <el-table-column prop="author" label="作者" width="200" />
-        <el-table-column prop="offlineTime" label="下线时间" width="200" />
-        <el-table-column prop="offlineReason" label="下线原因" width="200" />
-        <el-table-column label="操作" width="300">
-          <template #default="scope">
-            <el-button size="small" type="primary" :style="{ backgroundColor: primaryColor }"
-              @click="viewNews(scope.row)">
-              查看
-            </el-button>
-            <el-button size="small" :style="{ backgroundColor: secondaryColor, color: '#fff' }"
-              @click="republishNews(scope.row)">
-              重新发布
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <div class="table-wrapper">
+        <el-table :data="paged" style="width: 100%" border>
+          <el-table-column prop="id" label="文章ID" width="180" />
+          <el-table-column prop="title" label="草稿标题" min-width="250" />
+          <el-table-column prop="source" label="文章作者" width="180" />
+          <el-table-column prop="category" label="文章类型" width="180" />
+          <el-table-column prop="created_at" label="创建时间" width="180" />
+          <el-table-column prop="status" label="文章状态" width="180" align="center">
+            <template #default="scope">
+              <el-tag
+                :type="getStatusType(scope.row.status)"
+                v-if="scope.row.status === '审核已通过'"
+                >{{ '未发布' }}</el-tag
+              >
+              <el-tag
+                :type="getStatusType(scope.row.status)"
+                v-if="scope.row.status !== '审核已通过'"
+                >{{ scope.row.status }}</el-tag
+              >
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="280">
+            <template #default="scope">
+              <el-button
+                size="small"
+                type="warning"
+                @click="((dialogFormVisible = true), openDialogVisible(scope.row.id))"
+              >
+                发布
+              </el-button>
 
+              <el-button size="small" type="success" @click="editDraft(scope.row)">查看</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <el-dialog v-model="dialogFormVisible" title="发布" width="500">
+        <el-form>
+          <el-form-item label="发布" label-width="140px">
+            <el-select v-model="status" :placeholder="options[0].label" style="width: 100px">
+              <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="dialogFormVisible = false">取消</el-button>
+            <el-button type="primary" @click="submitStatus"> 确认 </el-button>
+          </div>
+        </template>
+      </el-dialog>
       <div class="pagination-container">
-        <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[10, 20, 30, 50]"
-          layout="total, sizes, prev, pager, next, jumper" :total="total" @size-change="handleSizeChange"
-          @current-change="handleCurrentChange" />
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[5, 10, 20, 30]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
       </div>
     </el-card>
-
-    <!-- 重新发布确认对话框 -->
-    <el-dialog v-model="republishDialogVisible" title="重新发布确认" width="400px">
-      <p>确定要重新发布这条新闻吗？重新发布后将在前台展示。</p>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="republishDialogVisible = false">取消</el-button>
-          <el-button type="primary" :style="{ backgroundColor: primaryColor }" @click="confirmRepublish">确定</el-button>
-        </span>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
-<script setup lang="ts">
-import type { FormInstance } from 'element-plus';
-import { ElMessage } from 'element-plus';
-import { onMounted, reactive, ref } from 'vue';
-
-// 定义农产品相关的主题绿色
-const primaryColor = '#2e8b57'; // 海绿色
-const secondaryColor = '#3cb371'; // 中等海绿色
-
-// 搜索表单
-const searchForm = reactive({
-  title: '',
-  dateRange: []
-});
-const searchFormRef = ref<FormInstance>();
-
-// 分页相关
-const currentPage = ref(1);
-const pageSize = ref(10);
-const total = ref(0);
-
-// 重新发布对话框
-const republishDialogVisible = ref(false);
-const currentRepublishItem = ref<any>(null);
-
-// 新闻列表数据
-const newsList = ref([
-  {
-    id: 1,
-    title: '农产品季节性价格变动分析',
-    category: '市场分析',
-    author: 'admin',
-    offlineTime: '2023-10-20 14:30:45',
-    offlineReason: '内容已过时',
-    status: '已下线'
-  },
-  {
-    id: 2,
-    title: '农业机械化发展趋势',
-    category: '科学技术',
-    author: 'admin',
-    offlineTime: '2023-10-15 09:20:15',
-    offlineReason: '内容需更新',
-    status: '已下线'
-  },
-  {
-    id: 3,
-    title: '提高农产品产量的种植技巧',
-    category: '种植方法',
-    author: 'editor01',
-    offlineTime: '2023-10-10 16:45:30',
-    offlineReason: '内容存在错误',
-    status: '已下线'
-  }
-]);
-
-// 查看新闻
-const viewNews = (row: any) => {
-  // 这里可以展示新闻详情，可以通过对话框或跳转到详情页
-  console.log('查看下线新闻:', row);
-};
-
-// 重新发布新闻
-const republishNews = (row: any) => {
-  currentRepublishItem.value = row;
-  republishDialogVisible.value = true;
-};
-
-// 确认重新发布
-const confirmRepublish = () => {
-  if (!currentRepublishItem.value) return;
-
-  // 这里应该调用API重新发布新闻
-  ElMessage.success('新闻已重新发布');
-  republishDialogVisible.value = false;
-
-  // 从列表中移除该项
-  const index = newsList.value.findIndex(item => item.id === currentRepublishItem.value.id);
-  if (index !== -1) {
-    newsList.value.splice(index, 1);
-    total.value--;
-  }
-};
-
-// 搜索新闻列表
-const searchNewsList = () => {
-  console.log('搜索条件:', searchForm);
-  // 这里应该调用API，获取符合条件的数据
-  currentPage.value = 1;
-};
-
-// 重置搜索
-const resetSearch = (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  formEl.resetFields();
-  // 重置后重新加载数据
-};
-
-// 处理分页变化
-const handleSizeChange = (val: number) => {
-  pageSize.value = val;
-  // 加载数据
-};
-
-const handleCurrentChange = (val: number) => {
-  currentPage.value = val;
-  // 加载数据
-};
-
-onMounted(() => {
-  // 初始加载数据
-  total.value = newsList.value.length;
-});
-</script>
-
-<style scoped lang="less">
-.offline-container {
+<style lang="less" scoped>
+.drafts-container {
   padding: 20px;
 
   h1 {
     margin-bottom: 20px;
-    color: #2e8b57; // 海绿色
+    color: #2e8b57; // 主题绿色
+    font-size: 22px;
+    font-weight: 600;
   }
 
   .search-card {
@@ -191,19 +266,28 @@ onMounted(() => {
     margin-bottom: 20px;
   }
 
+  .table-operations {
+    margin-bottom: 15px;
+  }
+
+  .table-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
   .pagination-container {
     margin-top: 20px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
   }
 
   :deep(.el-button--primary) {
-    background-color: #2e8b57; // 海绿色
+    background-color: #2e8b57;
     border-color: #2e8b57;
   }
 
   :deep(.el-button--primary:hover) {
-    background-color: #3cb371; // 中等海绿色
+    background-color: #3cb371;
     border-color: #3cb371;
   }
 }
